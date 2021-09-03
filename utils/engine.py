@@ -5,19 +5,21 @@ from typing import Type, Tuple, List, Dict, Generator, NoReturn
 
 import os
 import re
+import logging
 import inspect
 import importlib
 
-from . import _base as base
+from .engines import _base as base
 
 PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
-PATH_ROOT_REL = os.path.relpath(PATH_ROOT, os.getcwd())
-PATH_MODULE_REL = PATH_ROOT_REL.replace(os.sep, '.')
+PATH_ENGINES = os.path.dirname(inspect.getfile(base))
 
-def each_module() -> Generator[str, None, None]:
+def each_module(plugins_dir: str) -> Generator[str, None, None]:
+	plugins_dir_rel = os.path.relpath(plugins_dir, os.getcwd())
+	module_path_rel = plugins_dir_rel.replace(os.sep, '.')
 	pattern = re.compile(r'([_A-Z0-9a-z]+)(?:.py)?')
-	for name in os.listdir(PATH_ROOT):
-		path = os.path.join(PATH_ROOT, name)
+	for name in os.listdir(plugins_dir):
+		path = os.path.join(plugins_dir, name)
 		if os.path.isfile(path) and \
 			(name.startswith('_') or not name.endswith('.py')):
 			continue
@@ -26,12 +28,12 @@ def each_module() -> Generator[str, None, None]:
 		m = pattern.match(name)
 		if not m:
 			continue
-		yield f"{PATH_MODULE_REL}.{m.group(1)}"
+		yield f"{module_path_rel}.{m.group(1)}"
 
 def load_engines() -> NoReturn:
 	_modules.clear()
 	_engines.clear()
-	for module_name in each_module():
+	for module_name in each_module(PATH_ENGINES):
 		module = importlib.import_module(module_name, package='.')
 		_modules.append(module)
 		_engines.update(dict(filter(
