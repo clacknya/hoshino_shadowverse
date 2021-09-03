@@ -29,11 +29,14 @@ punctuation = (
 	'\uFF1F'
 	'\uFF61'
 	'\u3002'
+	'　'
+	' '
 )
 
 def get_name_match_pattern(card: Dict) -> re.Pattern:
 	names = []
 	for name in card['names']:
+		name = name.strip()
 		for symbol in punctuation:
 			if symbol not in '.?':
 				name = name.replace(symbol, '.?')
