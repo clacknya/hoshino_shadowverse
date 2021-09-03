@@ -26,6 +26,7 @@ LOCK_PLAYERS = aiorwlock.RWLock()
 
 sv = Service('影之诗猜卡牌', bundle='sv娱乐', help_='''
 [sv猜卡牌] 进行猜卡牌游戏
+[sv猜卡牌重启] 当猜卡牌游戏死锁时解锁
 '''.strip())
 
 def set_default_config(config: Dict={}) -> Dict:
@@ -75,6 +76,12 @@ def get_group_image_res(gid: str, name: str='') -> Type[R.ResImg]:
 	image_path = os.path.join(images_path, f"{gid}_{name}.png")
 	image_res = R.img(image_path)
 	return image_res
+
+@sv.on_fullmatch(('sv_card_guess_reset', 'sv猜卡牌重启'))
+async def sv_card_guess_reset(bot, ev: CQEvent):
+	gid = str(ev.group_id)
+	await set_data(gid, None)
+	await bot.send(ev, '游戏已重启')
 
 @sv.on_fullmatch(('sv_card_guess', 'sv猜卡牌'))
 async def sv_card_guess(bot, ev: CQEvent):
