@@ -28,12 +28,32 @@ sv = Service('影之诗猜卡牌', bundle='sv娱乐', help_='''
 [sv猜卡牌] 进行猜卡牌游戏
 [sv猜卡牌解锁] 当猜卡牌游戏超时限未自动结束死锁时解锁
 '''.strip())
+# [sv猜卡牌引擎列表] 列出可用查询引擎
+# [sv猜卡牌引擎设定 名称] 设定查询引擎
 
 def set_default_config(config: Dict={}) -> Dict:
 	config.setdefault('engine', 'iyingdi')
-	card_guess = config.setdefault(NAME_MODULE, {})
-	card_guess.setdefault('time_limit', 30)
+	config.setdefault('time_limit', 30)
 	return config
+
+@sv.on_fullmatch(('sv猜卡牌引擎列表', ))
+async def sv_card_guess_engine_list(bot, ev: CQEvent):
+	await bot.send(ev, '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
+
+@sv.on_prefix(('sv猜卡牌引擎设定', ))
+async def sv_card_guess_engine_set(bot, ev: CQEvent):
+	msg = ev.message.extract_plain_text()
+	gid = str(ev.group_id)
+
+	if msg not in engine.get_engines():
+		await bot.send(ev, f"引擎{msg}不存在", at_sender=True)
+		return
+
+	config = await cfgmgr.load({})
+	config.setdefault(gid, {}).setdefault(NAME_MODULE, {})['engine'] = msg
+	await cfgmgr.save(config)
+
+	await bot.send(ev, f"影之诗查卡器引擎变更为{msg}", at_sender=True)
 
 def get_group_image_res(gid: str, name: str='') -> Type[R.ResImg]:
 	image_dir = os.path.join('shadowverse', 'games', 'images')
@@ -57,10 +77,8 @@ async def sv_card_guess(bot, ev: CQEvent):
 	gmmgr.start(ev.group_id)
 
 	config = await cfgmgr.load({})
-	config = config.get(gid, {})
+	config = config.get(gid, {}).get(NAME_MODULE, {})
 	set_default_config(config)
-
-	config_card_guess = config[NAME_MODULE]
 
 	e = engine.get_engine(config['engine'])
 
@@ -89,8 +107,8 @@ async def sv_card_guess(bot, ev: CQEvent):
 	gmmgr.set_data(ev.group_id, answer)
 
 	card_image_crop = MessageSegment.image(util.pic2b64(card_image_crop))
-	await bot.send(ev, f"猜猜这个图片是哪张卡牌的一部分?({config_card_guess['time_limit']}s后公布答案) {card_image_crop}")
-	await asyncio.sleep(config_card_guess['time_limit'])
+	await bot.send(ev, f"猜猜这个图片是哪张卡牌的一部分?({config['time_limit']}s后公布答案) {card_image_crop}")
+	await asyncio.sleep(config['time_limit'])
 
 	if gmmgr.get_winner(ev.group_id) == 0:
 		names = '\n'.join(card['names'])

@@ -216,17 +216,30 @@ class FakeClient():
 
 	@classmethod
 	async def card_search_test(cls):
+		group_id = random.choice(list(cls.GROUPS.keys()))
 		await cls.send(cls.group_msg_pack(
-			group_id=random.choice(list(cls.GROUPS.keys())),
+			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
-			msg='sv查卡 回归',
-			# msg='sv查卡 111 精灵',
+			msg='sv查卡引擎列表',
+		))
+		await asyncio.sleep(1)
+		await cls.send(cls.group_msg_pack(
+			group_id=group_id,
+			sender_id=cls.MASTER['uid'],
+			msg='sv查卡引擎设定 svgdb_en',
+		))
+		await asyncio.sleep(2)
+		await cls.send(cls.group_msg_pack(
+			group_id=group_id,
+			sender_id=cls.MASTER['uid'],
+			msg='sv查卡 Arisa',
 		))
 
 	@classmethod
 	async def card_guess_test(cls):
+		group_id = random.choice(list(cls.GROUPS.keys()))
 		await cls.send(cls.group_msg_pack(
-			group_id=random.choice(list(cls.GROUPS.keys())),
+			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
 			msg='sv猜卡牌',
 		))
@@ -236,7 +249,7 @@ class FakeClient():
 		tasks = [
 			asyncio.create_task(cls.wait()),
 			asyncio.create_task(cls.card_search_test()),
-			asyncio.create_task(cls.card_guess_test()),
+			# asyncio.create_task(cls.card_guess_test()),
 		]
 		await asyncio.gather(*tasks)
 

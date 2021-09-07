@@ -16,7 +16,12 @@ from hoshino import log, config
 class iyingdi(base.BaseEngine):
 
 	URL = 'https://api2.iyingdi.com/verse/card/search/vertical'
-	SOURCE = '国服'
+	SOURCE = '旅法师营地'
+
+	DEFAULT_HEADERS = {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+		'Referer':    'https://www.iyingdi.com/',
+	}
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
@@ -47,10 +52,7 @@ class iyingdi(base.BaseEngine):
 	@classmethod
 	async def _fetch_data(cls) -> List[Dict]:
 		cls._logger.info(f"fetch: {cls.URL}")
-		headers = {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-			'Referer':    'https://www.iyingdi.com/',
-		}
+		headers = cls.DEFAULT_HEADERS
 		data = {
 			'statistic': 'total',
 			'token':     '',

@@ -18,35 +18,35 @@ import PIL.ImageFont
 import PIL.ImageDraw
 import itertools
 
-from hoshino import log, config
 from .. import resource
+from hoshino import log, config
 
 class TypeStdCard(TypedDict):
-	id: str
-	names: List[str]
-	descs: List[str]
-	rules: List[str]
+	id:         str
+	names:      List[str]
+	descs:      List[str]
+	rules:      List[str]
 	attributes: Tuple[int, int, int]
-	faction: str
-	types: List[str]
-	series: str
-	rarity: str
-	image: str
+	faction:    str
+	types:      List[str]
+	series:     str
+	rarity:     str
+	image:      str
 
 class TypeImageCropConfig(TypedDict):
-	left: float
-	top: float
-	right: float
+	left:   float
+	top:    float
+	right:  float
 	bottom: float
-	wsize: float
+	wsize:  float
 
 class TypeImagesInfoConfig(TypedDict):
-	font: str
-	font_size: int
-	font_spacing: int
-	count_max: int
+	font:          str
+	font_size:     int
+	font_spacing:  int
+	count_max:     int
 	line_size_max: int
-	card_margin: int
+	card_margin:   int
 
 class BaseEngine():
 
@@ -163,15 +163,15 @@ class BaseEngine():
 	def get_type_code(cls, type: str) -> int:
 		type = type.lower()
 		if type in [
-			'followers', '从者', '随从',
+			'followers', 'follower', '从者', '随从',
 		]:
 			return 0
 		if type in [
-			'spells', '法术',
+			'spells', 'spell', '法术',
 		]:
 			return 1
 		if type in [
-			'amulets', '护符', '魔法阵',
+			'amulets', 'amulet', '护符', '魔法阵',
 		]:
 			return 2
 		# cls._logger.error(f"unknow type: {type}")
@@ -217,6 +217,12 @@ class BaseEngine():
 
 	# search ---------------------------
 
+	@classmethod
+	async def get_std_card_by_id(cls, id: str) -> TypeStdCard:
+		for card in await cls.get_all_std_cards():
+			if card.get('id') == id:
+				return card
+
 	PUNCTUATION = (
 		'\uFF02\uFF03\uFF04\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0B\uFF0C\uFF0D'
 		'\uFF0F\uFF1A\uFF1B\uFF1C\uFF1D\uFF1E\uFF20\uFF3B\uFF3C\uFF3D\uFF3E\uFF3F'
@@ -238,7 +244,7 @@ class BaseEngine():
 		'\uFF61'
 		'\u3002'
 	)
-	IGNORE_CHARS_IN_NAME = PUNCTUATION + (
+	IGNORED_CHARS_IN_NAME = PUNCTUATION + (
 		'　的'
 		' '
 	)
@@ -247,16 +253,10 @@ class BaseEngine():
 	def get_std_card_names_pattern(cls, card: TypeStdCard) -> re.Pattern:
 		patterns = [
 			''.join(map(
-				lambda x: '.?' if x in cls.IGNORE_CHARS_IN_NAME else x,
+				lambda x: '.?' if x in cls.IGNORED_CHARS_IN_NAME else x,
 				name.strip()
 			)) for name in card['names']
 		]
-		# patterns = []
-		# for name in card['names']:
-			# pattern = ''
-			# for c in name.strip():
-				# pattern += '.?' if c in cls.IGNORE_CHARS_IN_NAME else c
-			# patterns.append(pattern)
 		return re.compile('|'.join(patterns))
 
 	@classmethod
@@ -296,50 +296,62 @@ class BaseEngine():
 			cards = cls.filter_std_cards(cards, f)
 		return copy.deepcopy(cards)
 
+	# net ------------------------------
+
 	@classmethod
-	async def search_cards(cls, filters: List[str]) ->  List[TypeStdCard]:
-		return await cls.search_std_cards(filters)
+	async def get_url(cls, url: str, **kwargs) -> bytes:
+		cls._logger.info(f"get url: {url}")
+		kwargs.setdefault('headers', {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+		})
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.get(url, **kwargs) as response:
+					data = await response.read()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"get url: {url} failed")
+				raise
+		cls._logger.info(f"get url: {url} success")
+		return data
+
+	@classmethod
+	async def get_urls(cls, urls: List[str], **kwargs) -> List[bytes]:
+		kwargs.setdefault('headers', {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+		})
+		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
+			try:
+				async with session.get(url, **kwargs) as response:
+					return await response.read()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"get url: {url} failed")
+				return b''
+		# cls._logger.info(f"get urls: [{len(urls)}]")
+		cls._logger.info(f"get urls: {urls}")
+		async with aiohttp.ClientSession() as session:
+			data = await asyncio.gather(
+				*[fetch(session, url) for url in urls]
+			)
+		cls._logger.info(f"get urls: [{len(urls)}] success")
+		return data
 
 	# image ----------------------------
 
 	@classmethod
 	async def get_std_card_image(cls, card: TypeStdCard) -> PIL.Image.Image:
-		cls._logger.info(f"fetch image: {card['image']}")
-		headers = {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-		}
-		async with aiohttp.ClientSession() as session:
-			async with session.get(card['image'], headers=headers) as response:
-				bytes = io.BytesIO(await response.read())
-				image = PIL.Image.open(bytes).convert("RGBA")
-		cls._logger.info(f"fetch image: {card['image']} success")
+		bytes = io.BytesIO(await cls.get_url(card['image']))
+		image = PIL.Image.open(bytes).convert("RGBA")
 		return image
 
 	@classmethod
 	async def get_std_card_images(cls, cards: List[TypeStdCard]) -> List[PIL.Image.Image]:
-
-		headers = {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-		}
-
-		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
-			try:
-				async with session.get(url, headers=headers) as response:
-					return await response.read()
-			except Exception as e:
-				cls._logger.error(f"{e}")
-				return resource.images['error.png']
-
-		cls._logger.info(f"fetch images: {len(cards)}")
-		async with aiohttp.ClientSession() as session:
-			images = [
-				PIL.Image.open(io.BytesIO(bytes)).convert("RGBA") \
-					for bytes in await asyncio.gather(
-						*[fetch(session, card['image']) for card in cards]
-					)
-			]
-		cls._logger.info(f"fetch images: {len(cards)} success")
-
+		images = [
+			PIL.Image.open(io.BytesIO(bytes)).convert("RGBA") if bytes else \
+				PIL.Image.open(io.BytesIO(resource.images['error.png'])).convert("RGBA") \
+				for bytes in await cls.get_urls([card['image'] for card in cards])
+		]
 		return images
 
 	# can override
@@ -378,8 +390,10 @@ class BaseEngine():
 		def cut(text: str, line_size_max: int) -> List[str]:
 			SEPEND = r'[；，。！」]'
 			SEP = [
-				', ', '\. ', '! ', '; ', '(?=\()', '\) ',
-				'，', '、', '；', '—', '……', f'。(?!{SEPEND})', f'！(?!{SEPEND})', '(?=（)', f'）(?!{SEPEND})', '(?=「)', f'」(?!{SEPEND})',
+				' ', '，', '、', '；', '—', '……',
+				f'。(?!{SEPEND})', f'！(?!{SEPEND})',
+				'(?<!^)(?=（)', f'）(?!{SEPEND})',
+				'(?<!^)(?=「)', f'」(?!{SEPEND})',
 			]
 			result = []
 			size = utf8_size(text)
@@ -388,6 +402,7 @@ class BaseEngine():
 					lambda x: [i.end() for i in re.finditer(x, text)],
 					SEP
 				))) + [len(text)]
+				# assert all([i > 0 for i in seps])
 				fragment = min([(abs(utf8_size(text[:i])-line_size_max), i) for i in seps])
 				result.append(text[:fragment[1]])
 				text = text[fragment[1]:]
