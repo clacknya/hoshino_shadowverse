@@ -5,7 +5,7 @@ Hoshinobot 影之诗模块
 
 ## 使用
 
-克隆项目到 `HoshinoBot/hoshino/modules/` ，在 `HoshinoBot/hoshino/config/__bot__.py` 的 `MODULES_ON` 中加入 `hoshino_shadowverse`  。
+克隆项目到 `HoshinoBot/hoshino/modules/` ，在 `HoshinoBot/hoshino/config/__bot__.py` 的 `MODULES_ON` 中加入 `hoshino_shadowverse` 。
 
 ## 功能
 
@@ -24,5 +24,3 @@ Hoshinobot 影之诗模块
 #### 猜卡牌
 
 群聊中输入 `sv猜卡牌` 进行猜卡牌，名称中标点符号作通配处理。
-
-如发生死锁，输出 `sv猜卡牌重启` 进行解锁。
