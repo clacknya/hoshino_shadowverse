@@ -39,7 +39,7 @@ def set_default_config(config: Dict={}) -> Dict:
 
 @sv.on_fullmatch(('sv查卡引擎列表', ))
 async def sv_search_engine_list(bot, ev: CQEvent):
-	await bot.send(ev, '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engine()]), at_sender=True)
+	await bot.send(ev, '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
 
 @sv.on_prefix(('sv查卡引擎设定', ))
 async def sv_search_engine_set(bot, ev: CQEvent):

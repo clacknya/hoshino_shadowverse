@@ -115,6 +115,6 @@ async def sv_card_guess_check(bot, ev: CQEvent):
 
 		sv.logger.info(f"gid {ev.group_id} uid {ev.user_id} bingo~")
 
-		names = '\n'.join(answer['img_res']['names'])
+		names = '\n'.join(answer['names'])
 		await bot.send(ev, f"正确答案是：\n{names} {answer['img_res'].cqcode}\n{MessageSegment.at(ev.user_id)}猜对了，真厉害！\n(此轮游戏将在到达时限后自动结束，请耐心等待)")
 
