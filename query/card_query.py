@@ -49,14 +49,14 @@ async def sv_search_engine_set(bot, ev: CQEvent):
 	gid = str(ev.group_id)
 
 	if msg not in engine.get_engines():
-		await bot.send(ev, f"引擎{msg}不存在", at_sender=True)
+		await bot.send(ev, f"引擎 {msg} 不存在", at_sender=True)
 		return
 
 	config = await cfgmgr.load({})
 	config.setdefault(gid, {}).setdefault(NAME_MODULE, {})['engine'] = msg
 	await cfgmgr.save(config)
 
-	await bot.send(ev, f"影之诗查卡器引擎变更为{msg}", at_sender=True)
+	await bot.send(ev, f"影之诗查卡器引擎变更为 {msg}", at_sender=True)
 
 @sv.on_prefix(('sv查卡', ))
 async def sv_search(bot, ev: CQEvent):
@@ -67,6 +67,8 @@ async def sv_search(bot, ev: CQEvent):
 	config = await cfgmgr.load({})
 	config = config.get(gid, {}).get(NAME_MODULE, {})
 	set_default_config(config)
+
+	await bot.send(ev, f"使用引擎 {config['engine']} 进行查找", at_sender=False)
 
 	e = engine.get_engine(config['engine'])
 	filters = list(filter(lambda x: x != '', msg.split(' ')))

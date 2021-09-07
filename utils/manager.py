@@ -18,22 +18,6 @@ class Manager():
 		self._logger_name = f"{'.'.join(__name__.split('.')[2:])}@{self.__class__.__name__}"
 		self._logger = log.new_logger(self._logger_name, config.DEBUG)
 
-class DictManager(Manager):
-
-	def __init__(self):
-		super().__init__(self)
-		self._data = {}
-		self._lock = aiorwlock.RWLock()
-
-	async def get(self, key: str) -> Any:
-		async with self._lock.reader_lock:
-			result = copy.deepcopy(self._data.get(key))
-		return result
-
-	async def set(self, key: str, value: Any) -> NoReturn:
-		async with self._lock.writer_lock:
-			self._data[key] = copy.deepcopy(value)
-
 class ConfigManager(Manager):
 
 	def __init__(self, path: str):

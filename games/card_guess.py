@@ -46,14 +46,14 @@ async def sv_card_guess_engine_set(bot, ev: CQEvent):
 	gid = str(ev.group_id)
 
 	if msg not in engine.get_engines():
-		await bot.send(ev, f"引擎{msg}不存在", at_sender=True)
+		await bot.send(ev, f"引擎 {msg} 不存在", at_sender=True)
 		return
 
 	config = await cfgmgr.load({})
 	config.setdefault(gid, {}).setdefault(NAME_MODULE, {})['engine'] = msg
 	await cfgmgr.save(config)
 
-	await bot.send(ev, f"影之诗查卡器引擎变更为{msg}", at_sender=True)
+	await bot.send(ev, f"影之诗查卡器引擎变更为 {msg}", at_sender=True)
 
 def get_group_image_res(gid: str, name: str='') -> Type[R.ResImg]:
 	image_dir = os.path.join('shadowverse', 'games', 'images')
