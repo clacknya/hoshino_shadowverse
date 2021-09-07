@@ -305,8 +305,11 @@ class BaseEngine():
 	@classmethod
 	async def get_std_card_image(cls, card: TypeStdCard) -> PIL.Image.Image:
 		cls._logger.info(f"fetch image: {card['image']}")
+		headers = {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+		}
 		async with aiohttp.ClientSession() as session:
-			async with session.get(card['image']) as response:
+			async with session.get(card['image'], headers=headers) as response:
 				bytes = io.BytesIO(await response.read())
 				image = PIL.Image.open(bytes).convert("RGBA")
 		cls._logger.info(f"fetch image: {card['image']} success")
@@ -315,9 +318,13 @@ class BaseEngine():
 	@classmethod
 	async def get_std_card_images(cls, cards: List[TypeStdCard]) -> List[PIL.Image.Image]:
 
+		headers = {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+		}
+
 		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
 			try:
-				async with session.get(url) as response:
+				async with session.get(url, headers=headers) as response:
 					return await response.read()
 			except Exception as e:
 				cls._logger.error(f"{e}")
