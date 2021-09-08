@@ -6,7 +6,6 @@ from typing import List, Dict, TypedDict, NoReturn
 import os
 import io
 import abc
-import json
 import copy
 import aiohttp
 import PIL
@@ -131,7 +130,7 @@ class svgdb(base.BaseEngine):
 	# voice ----------------------------
 
 	@classmethod
-	async def get_std_card_voices_data(cls, card: TypeStdCard) -> TypeSVGVoice:
+	async def get_std_card_voices_data(cls, card: base.TypeStdCard) -> TypeSVGVoice:
 		headers = cls.DEFAULT_HEADERS
 		async with aiohttp.ClientSession() as session:
 			async with session.get(f"https://svgdb.me/api/voices/{card['id']}", headers=headers) as response:
