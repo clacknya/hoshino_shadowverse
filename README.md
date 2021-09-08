@@ -7,6 +7,12 @@ Hoshinobot 影之诗模块
 
 克隆项目到 `HoshinoBot/hoshino/modules/` ，在 `HoshinoBot/hoshino/config/__bot__.py` 的 `MODULES_ON` 中加入 `hoshino_shadowverse` 。
 
+安装依赖
+
+``` python
+pip install -r requirement.txt
+```
+
 ## 功能
 
 ### 查询
