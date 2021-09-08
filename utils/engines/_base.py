@@ -428,7 +428,7 @@ class BaseEngine():
 		return result
 
 	@classmethod
-	async def generate_cards_info_image(cls, cards: List[TypeStdCard], config: TypeImagesInfoConfig) -> PIL.Image.Image:
+	async def generate_std_cards_info_image(cls, cards: List[TypeStdCard], config: TypeImagesInfoConfig) -> PIL.Image.Image:
 
 		cards = cards[:config['count_max']]
 		font = PIL.ImageFont.truetype(

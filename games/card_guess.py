@@ -7,11 +7,7 @@ from hoshino import Service, R, util
 from hoshino.typing import CQEvent, MessageSegment
 
 import os
-import io
-import json
 import asyncio
-import aiofiles
-import aiorwlock
 
 from ..utils import engine
 from ..utils import manager
@@ -90,6 +86,10 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 		card_image = await e.get_std_card_image(card)
 		card_image_crop = e.get_std_card_image_crop(card_image)
+	except NotImplementedError as e:
+		sv.logger.critical(f"{e}")
+		gmmgr.finish(ev.group_id)
+		await bot.finish(ev, '该引擎功能未实现')
 	except Exception as e:
 		sv.logger.critical(f"{e}")
 		gmmgr.finish(ev.group_id)
@@ -114,7 +114,7 @@ async def sv_card_guess(bot, ev: CQEvent):
 		names = '\n'.join(card['names'])
 		await bot.send(ev, f"正确答案是：\n{names} {img_res.cqcode}\n很遗憾，没有人答对~")
 	else:
-		await bot.send(ev, '本轮游戏结束~')
+		await bot.send(ev, '本轮猜卡牌游戏结束~')
 
 	gmmgr.finish(ev.group_id)
 

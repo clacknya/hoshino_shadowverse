@@ -7,9 +7,6 @@ from hoshino import Service, R
 from hoshino.typing import CQEvent, MessageSegment
 
 import os
-import json
-import aiofiles
-import aiorwlock
 
 from ..utils import engine
 from ..utils import manager
@@ -75,6 +72,9 @@ async def sv_search(bot, ev: CQEvent):
 
 	try:
 		cards = await e.search_std_cards(filters)
+	except NotImplementedError as e:
+		sv.logger.critical(f"{e}")
+		await bot.finish(ev, '该引擎功能未实现')
 	except Exception as e:
 		sv.logger.critical(f"{e}")
 		await bot.finish(ev, '获取卡牌资源出错…')
@@ -90,7 +90,8 @@ async def sv_search(bot, ev: CQEvent):
 	image_res = R.img(image_path)
 	os.makedirs(R.img(image_dir).path, exist_ok=True)
 
-	image = await e.generate_cards_info_image(cards, config)
+	image = await e.generate_std_cards_info_image(cards, config)
 	image.save(image_res.path)
 	image.close()
+
 	await bot.send(ev, f"找到{len(cards)}张卡牌，最多显示{config['count_max']}张卡牌{image_res.cqcode}", at_sender=True)
