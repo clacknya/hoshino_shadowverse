@@ -21,9 +21,9 @@ cfgmgr = manager.ConfigManager(PATH_CONFIG)
 gmmgr = manager.GameManager(NAME_MODULE)
 
 sv = Service('影之诗猜卡牌', bundle='sv娱乐', help_='''
-[sv猜卡牌] 进行猜卡牌游戏
-[sv猜卡牌解锁] 当猜卡牌游戏超时限未自动结束死锁时解锁
+[sv猜卡牌 关键词 关键词 ...] 进行猜卡牌游戏，可选关键词筛选
 '''.strip())
+# [sv猜卡牌解锁] 当猜卡牌游戏超时限未自动结束死锁时解锁
 # [sv猜卡牌引擎列表] 列出可用查询引擎
 # [sv猜卡牌引擎设定 名称] 设定查询引擎
 
