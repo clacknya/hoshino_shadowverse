@@ -61,17 +61,20 @@ async def sv_search(bot, ev: CQEvent):
 	uid = str(ev.user_id)
 	gid = str(ev.group_id)
 
+	filters = list(filter(lambda x: x != '', msg.split(' ')))
+
+	sv.logger.debug(f"filters: {filters}")
+
 	config = await cfgmgr.load({})
 	config = config.get(gid, {}).get(NAME_MODULE, {})
 	set_default_config(config)
 
 	await bot.send(ev, f"使用引擎 {config['engine']} 进行查找", at_sender=False)
 
-	e = engine.get_engine(config['engine'])
-	filters = list(filter(lambda x: x != '', msg.split(' ')))
+	eg = engine.get_engine(config['engine'])
 
 	try:
-		cards = await e.search_std_cards(filters)
+		cards = await eg.search_std_cards(filters)
 	except NotImplementedError as e:
 		sv.logger.critical(f"{e}")
 		await bot.finish(ev, '该引擎功能未实现')
@@ -90,7 +93,7 @@ async def sv_search(bot, ev: CQEvent):
 	image_res = R.img(image_path)
 	os.makedirs(R.img(image_dir).path, exist_ok=True)
 
-	image = await e.generate_std_cards_info_image(cards, config)
+	image = await eg.generate_std_cards_info_image(cards, config)
 	image.save(image_res.path)
 	image.close()
 

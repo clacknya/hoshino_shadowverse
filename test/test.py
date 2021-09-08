@@ -226,13 +226,14 @@ class FakeClient():
 		await cls.send(cls.group_msg_pack(
 			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
-			msg='sv查卡引擎设定 svgdb_jp',
+			msg='sv查卡引擎设定 svgdb_en',
 		))
 		await asyncio.sleep(2)
 		await cls.send(cls.group_msg_pack(
 			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
-			msg='sv查卡 アリサ',
+			# msg='sv查卡 アリサ',
+			msg='sv查卡 511',
 		))
 
 	@classmethod
@@ -247,20 +248,20 @@ class FakeClient():
 		await cls.send(cls.group_msg_pack(
 			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
-			msg='sv猜卡牌引擎设定 svgdb_jp',
+			msg='sv猜卡牌引擎设定 iyingdi',
 		))
 		await asyncio.sleep(2)
 		await cls.send(cls.group_msg_pack(
 			group_id=group_id,
 			sender_id=cls.MASTER['uid'],
-			msg='sv猜卡牌',
+			msg='sv猜卡牌 111 精灵',
 		))
 
 	@classmethod
 	async def job(cls):
 		tasks = [
 			asyncio.create_task(cls.wait()),
-			asyncio.create_task(cls.card_search_test()),
+			# asyncio.create_task(cls.card_search_test()),
 			asyncio.create_task(cls.card_guess_test()),
 		]
 		await asyncio.gather(*tasks)
@@ -270,10 +271,10 @@ async def main():
 	await FakeClient.run()
 
 if __name__ == '__main__':
-	tracemalloc.start()
+	# tracemalloc.start()
 	try:
 		asyncio.run(main())
 	except KeyboardInterrupt:
 		pass
-	snapshot = tracemalloc.take_snapshot()
-	display_top(snapshot)
+	# snapshot = tracemalloc.take_snapshot()
+	# display_top(snapshot)

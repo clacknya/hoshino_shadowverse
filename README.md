@@ -10,7 +10,7 @@ Hoshinobot 影之诗模块
 安装依赖
 
 ``` python
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 ## 功能

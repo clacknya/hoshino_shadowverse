@@ -70,13 +70,13 @@ class svgdb(base.BaseEngine):
 				card.get('baseEffect_', ''),
 			],
 			'attributes': (
-				card.get('_pp', 0),
+				card.get('pp_', 0),
 				card.get('baseAtk_', 0),
 				card.get('baseDef_', 0),
 			),
 			'faction': card.get('craft_'),
 			'types': list(filter(
-				lambda x: x != '',
+				lambda x: x not in ['', '-'],
 				(
 					card.get('type_'),
 					card.get('trait_'),

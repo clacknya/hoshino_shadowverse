@@ -121,39 +121,39 @@ class BaseEngine():
 	def get_faction_code(cls, faction: str) -> int:
 		faction = faction.lower()
 		if faction in [
-			'neutral', '中立',
+			'neutral', 'ニュートラル', '中立',
 		]:
 			return 0
 		if faction in [
-			'forestcraft', '精灵', '妖精', '妖',
+			'forestcraft', 'エルフ', '精灵', '妖精', '妖',
 		]:
 			return 1
 		if faction in [
-			'swordcraft', '皇家护卫', '皇室护卫', '皇家', '皇',
+			'swordcraft', 'ロイヤル', '皇家护卫', '皇室护卫', '皇家', '皇室', '皇',
 		]:
 			return 2
 		if faction in [
-			'runecraft', '法师', '法', '巫师',
+			'runecraft', 'ウィッチ', '法师', '法', '巫师',
 		]:
 			return 3
 		if faction in [
-			'dragoncraft', '龙族', '龙',
+			'dragoncraft', 'ドラゴン', '龙族', '龙',
 		]:
 			return 4
 		if faction in [
-			'shadowcraft', '死灵法师', '死灵术士', '死灵', '死', '唤灵师',
+			'shadowcraft', 'ネクロマンサー', '死灵法师', '死灵术士', '死灵', '死', '唤灵师',
 		]:
 			return 5
 		if faction in [
-			'bloodcraft', '吸血鬼', '鬼', '血族', '暗夜伯爵',
+			'bloodcraft', 'ヴァンパイア', '吸血鬼', '鬼', '血族', '暗夜伯爵',
 		]:
 			return 6
 		if faction in [
-			'havencraft', '主教', '教',
+			'havencraft', 'ビショップ', '主教', '教',
 		]:
 			return 7
 		if faction in [
-			'portalcraft', '复仇者', '超越者', '鱼',
+			'portalcraft', 'ネメシス', '复仇者', '超越者', '鱼',
 		]:
 			return 8
 		# cls._logger.error(f"unknow faction: {faction}")
@@ -262,6 +262,8 @@ class BaseEngine():
 	@classmethod
 	def filter_std_cards(cls, cards: List[TypeStdCard], filter: str) -> List[TypeStdCard]:
 		cls._logger.debug(f"filter \"{filter}\" in {len(cards)} cards")
+		if filter == '':
+			return copy.deepcopy(cards)
 		result = []
 		if re.match(r'^\d+$', filter):
 			for card in cards:
@@ -273,14 +275,16 @@ class BaseEngine():
 					any(map(lambda x: filter in x, card.get('rules', []))) or
 					any(map(lambda x: filter in x, card.get('types', []))) or
 					cls.check_code_equal(
-						cls.get_faction_code(card.get('faction')),
-						cls.get_faction_code(filter)
-					) or
-					cls.check_code_equal(
 						cls.get_type_code(card.get('types')[0]),
 						cls.get_type_code(filter)
 					) or
+					card.get('faction') == filter or
+					cls.check_code_equal(
+						cls.get_faction_code(card.get('faction')),
+						cls.get_faction_code(filter)
+					) or
 					card.get('series') == filter or
+					card.get('rarity') == filter or
 					cls.check_code_equal(
 						cls.get_rarity_code(card.get('rarity')),
 						cls.get_rarity_code(filter)

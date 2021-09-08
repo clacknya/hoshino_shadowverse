@@ -63,29 +63,37 @@ async def sv_card_guess_unlock(bot, ev: CQEvent):
 	gmmgr.finish(ev.group_id)
 	await bot.send(ev, '游戏已解锁')
 
-@sv.on_fullmatch(('sv猜卡牌', ))
+@sv.on_prefix(('sv猜卡牌', ))
 async def sv_card_guess(bot, ev: CQEvent):
 	if not gmmgr.is_idle(ev.group_id):
 		await bot.finish(ev, '游戏仍在进行中…')
 
+	gmmgr.start(ev.group_id)
+
+	msg = ev.message.extract_plain_text()
 	gid = str(ev.group_id)
 
-	gmmgr.start(ev.group_id)
+	filters = list(filter(lambda x: x != '', msg.split(' ')))
+	sv.logger.debug(f"filters: {filters}")
 
 	config = await cfgmgr.load({})
 	config = config.get(gid, {}).get(NAME_MODULE, {})
 	set_default_config(config)
 
-	e = engine.get_engine(config['engine'])
+	eg = engine.get_engine(config['engine'])
 
 	try:
-		card = await e.get_random_std_card()
+		cards = await eg.search_std_cards(filters)
+
+		await bot.send(ev, f"使用引擎 {config['engine']} 进行查找\n将在{len(cards)}张卡牌中抽选", at_sender=False)
+
+		card = await eg.get_random_std_card(cards)
 
 		sv.logger.info(f"choose card {card['names']}")
 		sv.logger.debug(f"card image: {card['image']}")
 
-		card_image = await e.get_std_card_image(card)
-		card_image_crop = e.get_std_card_image_crop(card_image)
+		card_image = await eg.get_std_card_image(card)
+		card_image_crop = eg.get_std_card_image_crop(card_image)
 	except NotImplementedError as e:
 		sv.logger.critical(f"{e}")
 		gmmgr.finish(ev.group_id)
@@ -100,7 +108,7 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 	answer = {
 		'names': card['names'],
-		'pattern': e.get_std_card_names_pattern(card),
+		'pattern': eg.get_std_card_names_pattern(card),
 		'img_res': img_res,
 	}
 
