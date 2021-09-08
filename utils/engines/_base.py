@@ -267,7 +267,7 @@ class BaseEngine():
 				name.strip()
 			)) for name in card['names']
 		]
-		return re.compile('|'.join(patterns))
+		return re.compile('|'.join(patterns), flags=re.IGNORECASE)
 
 	@classmethod
 	def filter_std_cards(cls, cards: List[TypeStdCard], filter: str) -> List[TypeStdCard]:
