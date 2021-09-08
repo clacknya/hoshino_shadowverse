@@ -49,6 +49,9 @@ class GameManager(Manager):
 		self._name = name
 		self._data = {}
 		self._winner = {}
+		# > 0: winner qq
+		# = 0: winner undetermined
+		# < 0: error code (like reach time limit)
 
 	def get_data(self, gid: int) -> Any:
 		return copy.deepcopy(self._data.get(gid))

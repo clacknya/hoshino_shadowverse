@@ -33,6 +33,9 @@ class TypeStdCard(TypedDict):
 	rarity:     str
 	image:      str
 
+class TypeStdCardVoices(TypedDict):
+	pass
+
 class TypeImageCropConfig(TypedDict):
 	left:   float
 	top:    float
@@ -520,3 +523,13 @@ class BaseEngine():
 		any(map(lambda x: x.close(), card_images))
 
 		return image
+
+	# voice ----------------------------
+
+	@abc.abstractclassmethod
+	async def get_std_card_voices_data(cls, card: TypeStdCard) -> Union[List, Dict]:
+		raise NotImplementedError
+
+	@abc.abstractclassmethod
+	async def get_random_std_card_voice(cls, card: TypeStdCard) -> bytes:
+		raise NotImplementedError

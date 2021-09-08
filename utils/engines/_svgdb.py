@@ -6,6 +6,7 @@ from typing import List, Dict, TypedDict, NoReturn
 import os
 import io
 import abc
+import json
 import copy
 import aiohttp
 import PIL
@@ -34,6 +35,13 @@ class TypeSVGCard(TypedDict):
 	evoFlair_:   str
 	alts_:       List[int]
 	tokens_:     List[int]
+
+class TypeSVGVoice(TypedDict):
+	plays:   List[str]
+	evolves: List[str]
+	attacks: List[str]
+	deaths:  List[str]
+	effects: List[str]
 
 class svgdb(base.BaseEngine):
 
@@ -119,3 +127,13 @@ class svgdb(base.BaseEngine):
 		'bottom': 0.86971,
 		'wsize':  0.20,
 	}
+
+	# voice ----------------------------
+
+	@classmethod
+	async def get_std_card_voices_data(cls, card: TypeStdCard) -> TypeSVGVoice:
+		headers = cls.DEFAULT_HEADERS
+		async with aiohttp.ClientSession() as session:
+			async with session.get(f"https://svgdb.me/api/voices/{card['id']}", headers=headers) as response:
+				data = await response.json()
+		return data

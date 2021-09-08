@@ -87,6 +87,10 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 		await bot.send(ev, f"使用引擎 {config['engine']} 进行查找\n将在{len(cards)}张卡牌中抽选", at_sender=False)
 
+		if len(cards) == 0:
+			gmmgr.finish(ev.group_id)
+			await bot.finish(ev, '无卡牌资源')
+
 		card = await eg.get_random_std_card(cards)
 
 		sv.logger.info(f"choose card {card['names']}")
@@ -115,20 +119,31 @@ async def sv_card_guess(bot, ev: CQEvent):
 	gmmgr.set_data(ev.group_id, answer)
 
 	card_image_crop = MessageSegment.image(util.pic2b64(card_image_crop))
-	await bot.send(ev, f"猜猜这个图片是哪张卡牌的一部分?({config['time_limit']}s后公布答案) {card_image_crop}")
+	try:
+		await bot.send(ev, f"猜猜这个图片是哪张卡牌的一部分?({config['time_limit']}s后公布答案) {card_image_crop}")
+	except Exception as e:
+		sv.logger.critical(f"{e}")
+		gmmgr.finish(ev.group_id)
+		await bot.finish(ev, '发送失败，已结束')
+
 	await asyncio.sleep(config['time_limit'])
 
-	if gmmgr.get_winner(ev.group_id) == 0:
-		names = '\n'.join(card['names'])
-		await bot.send(ev, f"正确答案是：\n{names} {img_res.cqcode}\n很遗憾，没有人答对~")
-	else:
-		await bot.send(ev, '本轮猜卡牌游戏结束~')
+	try:
+		if gmmgr.get_winner(ev.group_id) == 0:
+			# reach time limit
+			gmmgr.win(ev.group_id, -1)
+			names = '\n'.join(card['names'])
+			await bot.send(ev, f"正确答案是：\n{names} {img_res.cqcode}\n很遗憾，没有人答对~")
+		else:
+			await bot.send(ev, '本轮猜卡牌游戏结束~')
+	except Exception as e:
+		sv.logger.critical(f"{e}")
 
 	gmmgr.finish(ev.group_id)
 
 @sv.on_message()
 async def sv_card_guess_check(bot, ev: CQEvent):
-	if gmmgr.is_idle(ev.group_id) or gmmgr.get_winner(ev.group_id) > 0:
+	if gmmgr.is_idle(ev.group_id) or gmmgr.get_winner(ev.group_id) != 0:
 		return
 
 	gid = str(ev.group_id)
