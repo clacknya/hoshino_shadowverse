@@ -261,8 +261,8 @@ class FakeClient():
 	async def job(cls):
 		tasks = [
 			asyncio.create_task(cls.wait()),
-			# asyncio.create_task(cls.card_search_test()),
-			asyncio.create_task(cls.card_guess_test()),
+			asyncio.create_task(cls.card_search_test()),
+			# asyncio.create_task(cls.card_guess_test()),
 		]
 		await asyncio.gather(*tasks)
 
