@@ -97,7 +97,7 @@ async def sv_card_guess(bot, ev: CQEvent):
 	except NotImplementedError as e:
 		sv.logger.critical(f"{e}")
 		gmmgr.finish(ev.group_id)
-		await bot.finish(ev, '该引擎功能未实现')
+		await bot.finish(ev, '该引擎此功能未实现')
 	except Exception as e:
 		sv.logger.critical(f"{e}")
 		gmmgr.finish(ev.group_id)

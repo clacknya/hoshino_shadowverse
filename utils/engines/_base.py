@@ -177,13 +177,13 @@ class BaseEngine():
 		# cls._logger.error(f"unknow type: {type}")
 		return -1
 
+	@classmethod
+	def get_series_code(cls, series: str) -> int:
+		raise NotImplementedError
+
 	@staticmethod
 	def check_code_equal(a: int, b: int) -> bool:
 		return (a >= 0) and (b >= 0) and (a == b)
-
-	@staticmethod
-	def get_series_code(cls, series: str) -> int:
-		raise NotImplementedError
 
 	# cast -----------------------------
 
@@ -224,6 +224,7 @@ class BaseEngine():
 				return card
 
 	PUNCTUATION = (
+		# Chinese
 		'\uFF02\uFF03\uFF04\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0B\uFF0C\uFF0D'
 		'\uFF0F\uFF1A\uFF1B\uFF1C\uFF1D\uFF1E\uFF20\uFF3B\uFF3C\uFF3D\uFF3E\uFF3F'
 		'\uFF40\uFF5B\uFF5C\uFF5D\uFF5E\uFF5F\uFF60'
@@ -243,6 +244,12 @@ class BaseEngine():
 		'\uFF1F'
 		'\uFF61'
 		'\u3002'
+	) + (
+		# Japanese
+		'\u30fb'
+	) + (
+		# English
+		'!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 	)
 	IGNORED_CHARS_IN_NAME = PUNCTUATION + (
 		'　的'
