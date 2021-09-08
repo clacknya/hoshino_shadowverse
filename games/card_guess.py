@@ -143,13 +143,14 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 @sv.on_message()
 async def sv_card_guess_check(bot, ev: CQEvent):
-	if gmmgr.is_idle(ev.group_id) or gmmgr.get_winner(ev.group_id) != 0:
+	if (gmmgr.is_idle(ev.group_id) or not gmmgr.is_data_set(ev.group_id) or
+		gmmgr.get_winner(ev.group_id) != 0):
 		return
+
+	answer = gmmgr.get_data(ev.group_id)
 
 	gid = str(ev.group_id)
 	msg = ev.message.extract_plain_text()
-
-	answer = gmmgr.get_data(ev.group_id)
 
 	if answer['pattern'].match(msg):
 		gmmgr.win(ev.group_id, ev.user_id)

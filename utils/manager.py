@@ -62,9 +62,13 @@ class GameManager(Manager):
 	def is_idle(self, gid: int) -> bool:
 		return self._idle.get(gid, True)
 
+	def is_data_set(self, gid: int) -> bool:
+		return self._data.get(gid) != None
+
 	def start(self, gid: int) -> NoReturn:
 		self._idle[gid] = False
 		self._winner[gid] = 0
+		self._data[gid] = None
 
 	def win(self, gid: int, winner: int) -> NoReturn:
 		self._winner[gid] = winner

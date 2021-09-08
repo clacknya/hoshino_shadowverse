@@ -256,6 +256,12 @@ class FakeClient():
 			sender_id=cls.MASTER['uid'],
 			msg='sv猜卡牌 111 精灵',
 		))
+		# await asyncio.sleep(10)
+		# await cls.send(cls.group_msg_pack(
+			# group_id=group_id,
+			# sender_id=cls.MASTER['uid'],
+			# msg='啊啊啊啊',
+		# ))
 
 	@classmethod
 	async def job(cls):
