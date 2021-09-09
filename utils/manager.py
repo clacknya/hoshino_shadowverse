@@ -27,7 +27,7 @@ class ConfigManager(Manager):
 
 	async def load(self, default_value: Union[List, Dict]={}) -> Union[List, Dict]:
 		if not os.path.isfile(self._path):
-			self._logger.error(f"config file \"{self._path}\" not found")
+			self._logger.warning(f"config file \"{self._path}\" not found")
 			return default_value
 		async with self._lock.reader_lock:
 			async with aiofiles.open(self._path, 'r') as f:

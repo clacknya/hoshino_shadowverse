@@ -73,6 +73,10 @@ async def sv_search(bot, ev: CQEvent):
 
 	eg = engine.get_engine(config['engine'])
 
+	if eg == None:
+		sv.logger.critical(f"未找到引擎 {config['engine']}")
+		await bot.finish(ev, f"未找到引擎 {config['engine']}")
+
 	try:
 		cards = await eg.search_std_cards(filters)
 	except NotImplementedError as e:

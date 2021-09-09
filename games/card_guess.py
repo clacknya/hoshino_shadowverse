@@ -82,6 +82,11 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 	eg = engine.get_engine(config['engine'])
 
+	if eg == None:
+		sv.logger.critical(f"未找到引擎 {config['engine']}")
+		gmmgr.finish(ev.group_id)
+		await bot.finish(ev, f"未找到引擎 {config['engine']}")
+
 	try:
 		cards = await eg.search_std_cards(filters)
 
