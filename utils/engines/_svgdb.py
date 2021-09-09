@@ -120,10 +120,10 @@ class svgdb(base.BaseEngine):
 		return images
 
 	DEFAULT_IMAGE_CROP_CONFIG = {
-		'left':   0.13775,
-		'top':    0.19468,
-		'right':  0.86381,
-		'bottom': 0.86971,
+		'left':   0.0,
+		'top':    0.0,
+		'right':  1.0,
+		'bottom': 1.0,
 		'wsize':  0.20,
 	}
 

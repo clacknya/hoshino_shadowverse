@@ -111,3 +111,13 @@ class iyingdi(base.BaseEngine):
 	@classmethod
 	def to_std_cards(cls, cards: List[Dict]) -> List[base.TypeStdCard]:
 		return [cls.to_std_card(card) for card in cards]
+
+	# image ----------------------------
+
+	DEFAULT_IMAGE_CROP_CONFIG = {
+		'left':   0.13775,
+		'top':    0.19468,
+		'right':  0.86381,
+		'bottom': 0.86971,
+		'wsize':  0.20,
+	}

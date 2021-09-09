@@ -257,6 +257,7 @@ class BaseEngine():
 	IGNORED_CHARS_IN_NAME = PUNCTUATION + (
 		'　的'
 		' '
+		'áéö'
 	)
 
 	@classmethod
