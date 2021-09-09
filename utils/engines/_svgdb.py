@@ -35,12 +35,7 @@ class TypeSVGCard(TypedDict):
 	alts_:       List[int]
 	tokens_:     List[int]
 
-class TypeSVGVoice(TypedDict):
-	plays:   List[str]
-	evolves: List[str]
-	attacks: List[str]
-	deaths:  List[str]
-	effects: List[str]
+TypeSVGCardVoices = Dict[str, List[str]]
 
 class svgdb(base.BaseEngine):
 
@@ -129,10 +124,51 @@ class svgdb(base.BaseEngine):
 
 	# voice ----------------------------
 
+	@abc.abstractclassmethod
+	def get_svg_card_voice_url(cls, voice: str) -> str:
+		raise NotImplementedError
+
 	@classmethod
-	async def get_std_card_voices_data(cls, card: base.TypeStdCard) -> TypeSVGVoice:
+	async def get_svg_card_voices(cls, card: base.TypeStdCard) -> TypeSVGCardVoices:
 		headers = cls.DEFAULT_HEADERS
 		async with aiohttp.ClientSession() as session:
 			async with session.get(f"https://svgdb.me/api/voices/{card['id']}", headers=headers) as response:
 				data = await response.json()
 		return data
+
+	@classmethod
+	async def get_svg_card_voices(cls, card: base.TypeStdCard) -> base.TypeStdCardVoices:
+		svg_voices = await cls.get_svg_card_voices(card)
+		svg_voices = [(k, v) for k in svg_voices for v in svg_voices[k]]
+		std_voices = []
+		for k, v in svg_voices:
+			if k == 'plays':
+				if v.find('enh'):
+					action = cls._translation.get('enhance')
+				else:
+					action = cls._translation.get('play')
+			elif k == 'attacks':
+				action = cls._translation.get('attack')
+				if 'evo' in v:
+					action = f"{action} ({cls._translation.get('evolve')})"
+			elif k == 'evolves':
+				action = cls._translation.get('evolve')
+			elif k == 'deaths':
+				action = cls._translation.get('death')
+				if 'evo' in v:
+					action = f"{action} ({cls._translation.get('evolve')})"
+			elif k == 'effects':
+				action = cls._translation.get('effectVoice')
+			elif k == 'other':
+				if v[8] == '4':
+					action = cls._translation.get('accelerate')
+				else:
+				# elif v[8] == '3':
+					action = cls._translation.get('crystallize')
+			else:
+				action = k
+			std_voices.append({
+				'action': action,
+				'voice': cls.get_svg_card_voice_url(v),
+			})
+		return std_voices

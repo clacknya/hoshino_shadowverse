@@ -10,21 +10,19 @@ import os
 
 from ..utils import engine
 from ..utils import manager
+from .init import cfgmgr
 
 PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
 PATH_FONTS = os.path.join(PATH_ROOT, '..', 'fonts')
 PATH_FONT_DEFAULT = os.path.join(PATH_FONTS, 'simhei.ttf')
-PATH_CONFIG = os.path.join(PATH_ROOT, 'config.json')
 
 NAME_MODULE = __name__.split('.')[-1]
 
-cfgmgr = manager.ConfigManager(PATH_CONFIG)
-
 sv = Service('影之诗查卡器', bundle='sv查询', help_='''
 [sv查卡 关键词 关键词 ...] 进行查卡，支持多关键词
+[sv查卡引擎列表] 列出可用查询引擎
+[sv查卡引擎设定 名称] 设定查询引擎
 '''.strip())
-# [sv查卡引擎列表] 列出可用查询引擎
-# [sv查卡引擎设定 名称] 设定查询引擎
 
 def set_default_config(config: Dict={}) -> Dict:
 	config.setdefault('engine', 'iyingdi')
@@ -38,7 +36,7 @@ def set_default_config(config: Dict={}) -> Dict:
 
 @sv.on_fullmatch(('sv查卡引擎列表', ))
 async def sv_search_engine_list(bot, ev: CQEvent):
-	await bot.send(ev, '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
+	await bot.send(ev, '列表：\n' + '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
 
 @sv.on_prefix(('sv查卡引擎设定', ))
 async def sv_search_engine_set(bot, ev: CQEvent):

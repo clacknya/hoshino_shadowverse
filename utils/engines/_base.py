@@ -33,8 +33,11 @@ class TypeStdCard(TypedDict):
 	rarity:     str
 	image:      str
 
-class TypeStdCardVoices(TypedDict):
-	pass
+class TypeStdCardVoice(TypedDict):
+	action: str
+	voice:  str
+
+TypeStdCardVoices = List[TypeStdCardVoice]
 
 class TypeImageCropConfig(TypedDict):
 	left:   float
@@ -528,9 +531,9 @@ class BaseEngine():
 	# voice ----------------------------
 
 	@abc.abstractclassmethod
-	async def get_std_card_voices_data(cls, card: TypeStdCard) -> Union[List, Dict]:
+	async def get_std_card_voices(cls, card: TypeStdCard) -> TypeStdCardVoices:
 		raise NotImplementedError
 
 	@abc.abstractclassmethod
-	async def get_random_std_card_voice(cls, card: TypeStdCard) -> bytes:
+	async def get_std_card_voice(cls, card: TypeStdCard) -> bytes:
 		raise NotImplementedError

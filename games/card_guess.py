@@ -11,21 +11,20 @@ import asyncio
 
 from ..utils import engine
 from ..utils import manager
+from .init import cfgmgr
 
 PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
-PATH_CONFIG = os.path.join(PATH_ROOT, 'config.json')
 
 NAME_MODULE = __name__.split('.')[-1]
 
-cfgmgr = manager.ConfigManager(PATH_CONFIG)
 gmmgr = manager.GameManager(NAME_MODULE)
 
 sv = Service('影之诗猜卡牌', bundle='sv娱乐', help_='''
 [sv猜卡牌 关键词 关键词 ...] 进行猜卡牌游戏，可选关键词筛选
+[sv猜卡牌引擎列表] 列出可用查询引擎
+[sv猜卡牌引擎设定 名称] 设定查询引擎
 '''.strip())
 # [sv猜卡牌解锁] 当猜卡牌游戏超时限未自动结束死锁时解锁
-# [sv猜卡牌引擎列表] 列出可用查询引擎
-# [sv猜卡牌引擎设定 名称] 设定查询引擎
 
 def set_default_config(config: Dict={}) -> Dict:
 	config.setdefault('engine', 'iyingdi')
@@ -34,7 +33,7 @@ def set_default_config(config: Dict={}) -> Dict:
 
 @sv.on_fullmatch(('sv猜卡牌引擎列表', ))
 async def sv_card_guess_engine_list(bot, ev: CQEvent):
-	await bot.send(ev, '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
+	await bot.send(ev, '列表：\n' + '\n'.join([f"引擎: {name}, 源: {source}" for name, source in engine.list_engines()]), at_sender=True)
 
 @sv.on_prefix(('sv猜卡牌引擎设定', ))
 async def sv_card_guess_engine_set(bot, ev: CQEvent):
@@ -49,7 +48,7 @@ async def sv_card_guess_engine_set(bot, ev: CQEvent):
 	config.setdefault(gid, {}).setdefault(NAME_MODULE, {})['engine'] = msg
 	await cfgmgr.save(config)
 
-	await bot.send(ev, f"影之诗查卡器引擎变更为 {msg}", at_sender=True)
+	await bot.send(ev, f"影之诗猜卡牌引擎变更为 {msg}", at_sender=True)
 
 def get_group_image_res(gid: str, name: str='') -> Type[R.ResImg]:
 	image_dir = os.path.join('shadowverse', 'games', 'images')
@@ -94,7 +93,8 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 		if len(cards) == 0:
 			gmmgr.finish(ev.group_id)
-			await bot.finish(ev, '无卡牌资源')
+			await bot.send(ev, '无卡牌资源')
+			return
 
 		card = await eg.get_random_std_card(cards)
 
