@@ -98,13 +98,13 @@ async def sv_card_guess(bot, ev: CQEvent):
 
 		card = await eg.get_random_std_card(cards)
 
-		sv.logger.info(f"choose card {card['names']}")
+		sv.logger.info(f"choose card id: {card['id']}, name: {card['names']}")
 		sv.logger.debug(f"card image: {card['image']}")
 
 		card_image = await eg.get_std_card_image(card)
 		card_image_crop = eg.get_std_card_image_crop(card_image)
 	except NotImplementedError as e:
-		sv.logger.critical(f"{e}")
+		sv.logger.critical('NotImplementedError')
 		gmmgr.finish(ev.group_id)
 		await bot.finish(ev, '该引擎此功能未实现')
 	except Exception as e:
@@ -164,4 +164,3 @@ async def sv_card_guess_check(bot, ev: CQEvent):
 
 		names = '\n'.join(answer['names'])
 		await bot.send(ev, f"正确答案是：\n{names} {answer['img_res'].cqcode}\n{MessageSegment.at(ev.user_id)}猜对了，真厉害！\n(此轮游戏将在到达时限后自动结束，请耐心等待)")
-

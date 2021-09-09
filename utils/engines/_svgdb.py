@@ -130,14 +130,17 @@ class svgdb(base.BaseEngine):
 
 	@classmethod
 	async def get_svg_card_voices(cls, card: base.TypeStdCard) -> TypeSVGCardVoices:
+		url = f"https://svgdb.me/api/voices/{card['id']}"
 		headers = cls.DEFAULT_HEADERS
+		cls._logger.info(f"fetch: {url}")
 		async with aiohttp.ClientSession() as session:
-			async with session.get(f"https://svgdb.me/api/voices/{card['id']}", headers=headers) as response:
+			async with session.get(url, headers=headers) as response:
 				data = await response.json()
+		cls._logger.info(f"fetch: {url} success")
 		return data
 
 	@classmethod
-	async def get_svg_card_voices(cls, card: base.TypeStdCard) -> base.TypeStdCardVoices:
+	async def get_std_card_voices(cls, card: base.TypeStdCard) -> base.TypeStdCardVoices:
 		svg_voices = await cls.get_svg_card_voices(card)
 		svg_voices = [(k, v) for k in svg_voices for v in svg_voices[k]]
 		std_voices = []

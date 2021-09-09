@@ -78,7 +78,7 @@ async def sv_search(bot, ev: CQEvent):
 	try:
 		cards = await eg.search_std_cards(filters)
 	except NotImplementedError as e:
-		sv.logger.critical(f"{e}")
+		sv.logger.critical('NotImplementedError')
 		await bot.finish(ev, '该引擎此功能未实现')
 	except Exception as e:
 		sv.logger.critical(f"{e}")

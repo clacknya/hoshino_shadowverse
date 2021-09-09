@@ -534,6 +534,6 @@ class BaseEngine():
 	async def get_std_card_voices(cls, card: TypeStdCard) -> TypeStdCardVoices:
 		raise NotImplementedError
 
-	@abc.abstractclassmethod
-	async def get_std_card_voice(cls, card: TypeStdCard) -> bytes:
-		raise NotImplementedError
+	@classmethod
+	async def get_std_card_voice(cls, voice: TypeStdCardVoice) -> bytes:
+		return await cls.get_url(voice['voice'])

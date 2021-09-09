@@ -26,7 +26,6 @@ class svgdb_en(_svgdb.svgdb):
 	_std_data_expire_date = datetime.datetime.min
 	_std_data_update_cd = datetime.timedelta(hours=24)
 
-
 	_translation = {
 		'cards': 'Cards',
 		'leaders': 'Leaders',
