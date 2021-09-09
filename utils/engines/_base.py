@@ -105,19 +105,19 @@ class BaseEngine():
 	def get_rarity_code(cls, rarity: str) -> int:
 		rarity = rarity.lower()
 		if rarity in [
-			'bronze', '铜', '青铜',
+			'bronze', 'ブロンズレア', 'ブロンズ', '青铜', '铜',
 		]:
 			return 0
 		if rarity in [
-			'silver', '银', '白银',
+			'silver', 'シルバーレア', 'シルバー', '白银', '银',
 		]:
 			return 1
 		if rarity in [
-			'gold', '金', '黄金',
+			'gold', 'ゴールドレア', 'ゴールド', '黄金', '金',
 		]:
 			return 2
 		if rarity in [
-			'legendary', '虹', '传说',
+			'legendary', 'レジェンド', '传说', '虹',
 		]:
 			return 3
 		# cls._logger.error(f"unknow rarity: {rarity}")
@@ -169,15 +169,15 @@ class BaseEngine():
 	def get_type_code(cls, type: str) -> int:
 		type = type.lower()
 		if type in [
-			'followers', 'follower', '从者', '随从',
+			'followers', 'follower', 'フォロワー', '从者', '随从',
 		]:
 			return 0
 		if type in [
-			'spells', 'spell', '法术',
+			'spells', 'spell', 'スペル', '法术',
 		]:
 			return 1
 		if type in [
-			'amulets', 'amulet', '护符', '魔法阵',
+			'amulets', 'amulet', 'アミュレット', '护符', '魔法阵',
 		]:
 			return 2
 		# cls._logger.error(f"unknow type: {type}")
