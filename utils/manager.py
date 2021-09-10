@@ -7,8 +7,6 @@ import os
 import json
 import copy
 import logging
-# import aiofiles
-# import aiorwlock
 
 from hoshino import log, config
 
@@ -23,24 +21,17 @@ class ConfigManager(Manager):
 	def __init__(self, path: str):
 		super().__init__()
 		self._path = path
-		# self._lock = aiorwlock.RWLock()
 
 	async def load(self, default_value: Union[List, Dict]={}) -> Union[List, Dict]:
 		if not os.path.isfile(self._path):
 			self._logger.warning(f"config file \"{self._path}\" not found")
 			return default_value
-		# async with self._lock.reader_lock:
-			# async with aiofiles.open(self._path, 'r') as f:
-				# config = json.loads(await f.read())
 		with open(self._path, 'r') as f:
 			config = json.load(f)
 		self._logger.info(f"config file \"{self._path}\" loaded")
 		return config
 
 	async def save(self, config: Union[List, Dict]) -> NoReturn:
-		# async with self._lock.writer_lock:
-			# async with aiofiles.open(self._path, 'w') as f:
-				# await f.write(json.dumps(config))
 		with open(self._path, 'w') as f:
 			json.dump(config, f)
 		self._logger.info(f"config file \"{self._path}\" saved")

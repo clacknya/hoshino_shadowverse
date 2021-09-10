@@ -1,18 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import List, Dict, TypedDict, NoReturn
+from typing import List, Dict, TypedDict
 
-import os
-import io
 import abc
-import copy
-import aiohttp
-import PIL
 
 from . import _base as base
-from .. import resource
-from hoshino import log, config
 
 class TypeSVGCard(TypedDict):
 	name_:       str
@@ -49,14 +42,11 @@ class svgdb(base.BaseEngine):
 
 	@classmethod
 	async def _fetch_data(cls) -> Dict[str, TypeSVGCard]:
-		cls._logger.info(f"fetch: {cls.URL}")
+		cls._logger.info(f"fetch data")
 		headers = cls.DEFAULT_HEADERS
-		async with aiohttp.ClientSession() as session:
-			async with session.get(cls.URL, headers=headers) as response:
-				ret = await response.json()
-		cls._logger.info(f"fetch: {cls.URL} success")
+		ret = await cls._get_url_json(cls.URL, headers=headers)
+		cls._logger.info(f"fetch data succeed")
 		return ret
-
 
 	@classmethod
 	def to_std_card(cls, card: TypeSVGCard) -> base.TypeStdCard:
@@ -65,6 +55,16 @@ class svgdb(base.BaseEngine):
 			'names': [
 				card.get('name_', ''),
 			],
+			'faction': card.get('craft_'),
+			'types': list(filter(
+				lambda x: x not in ['', '-'],
+				(
+					card.get('type_'),
+					card.get('trait_'),
+				)
+			)),
+			'series': card.get('expansion_'),
+			'rarity': card.get('rarity_'),
 			'descs': [
 				card.get('baseFlair_', ''),
 			],
@@ -76,17 +76,20 @@ class svgdb(base.BaseEngine):
 				card.get('baseAtk_', 0),
 				card.get('baseDef_', 0),
 			),
-			'faction': card.get('craft_'),
-			'types': list(filter(
-				lambda x: x not in ['', '-'],
-				(
-					card.get('type_'),
-					card.get('trait_'),
-				)
-			)),
-			'series': card.get('expansion_'),
-			'rarity': card.get('rarity_'),
-			'image': f"https://svgdb.me/assets/fullart/{card.get('id_')}.png",
+			# 'image': f"https://svgdb.me/assets/fullart/{card.get('id_')}.png",
+			'image': cls._get_image_url_by_id(card.get('id_')),
+			'evo_descs': [
+				card.get('evoFlair_', ''),
+			],
+			'evo_rules': [
+				card.get('evoEffect_', ''),
+			],
+			'evo_attributes': (
+				card.get('pp_', 0),
+				card.get('evoAtk_', 0),
+				card.get('evoDef_', 0),
+			),
+			'evo_image': '',
 		}
 
 	@classmethod
@@ -96,23 +99,8 @@ class svgdb(base.BaseEngine):
 	# image ----------------------------
 
 	@abc.abstractclassmethod
-	def get_std_card_image_url(cls, card: base.TypeStdCard) -> str:
+	def _get_image_url_by_id(cls, id: str) -> str:
 		raise NotImplementedError
-
-	@classmethod
-	async def get_std_card_image(cls, card: base.TypeStdCard) -> PIL.Image.Image:
-		bytes = io.BytesIO(await cls.get_url(cls.get_std_card_image_url(card)))
-		image = PIL.Image.open(bytes).convert("RGBA")
-		return image
-
-	@classmethod
-	async def get_std_card_images(cls, cards: List[base.TypeStdCard]) -> List[PIL.Image.Image]:
-		images = [
-			PIL.Image.open(io.BytesIO(bytes)).convert("RGBA") if bytes else \
-				PIL.Image.open(io.BytesIO(resource.images['error.png'])).convert("RGBA") \
-				for bytes in await cls.get_urls([cls.get_std_card_image_url(card) for card in cards])
-		]
-		return images
 
 	DEFAULT_IMAGE_CROP_CONFIG = {
 		'left':   0.0,
@@ -125,18 +113,16 @@ class svgdb(base.BaseEngine):
 	# voice ----------------------------
 
 	@abc.abstractclassmethod
-	def get_svg_card_voice_url(cls, voice: str) -> str:
+	def _get_voice_url_by_file(cls, voice: str) -> str:
 		raise NotImplementedError
 
 	@classmethod
 	async def get_svg_card_voices(cls, card: base.TypeStdCard) -> TypeSVGCardVoices:
+		cls._logger.info(f"fetch data")
 		url = f"https://svgdb.me/api/voices/{card['id']}"
 		headers = cls.DEFAULT_HEADERS
-		cls._logger.info(f"fetch: {url}")
-		async with aiohttp.ClientSession() as session:
-			async with session.get(url, headers=headers) as response:
-				data = await response.json()
-		cls._logger.info(f"fetch: {url} success")
+		ret = await cls._get_url_json(url, headers=headers)
+		cls._logger.info(f"fetch data succeed")
 		return data
 
 	@classmethod
@@ -146,7 +132,7 @@ class svgdb(base.BaseEngine):
 		std_voices = []
 		for k, v in svg_voices:
 			if k == 'plays':
-				if v.find('enh'):
+				if 'enh' in v:
 					action = cls._translation.get('enhance')
 				else:
 					action = cls._translation.get('play')
@@ -172,6 +158,6 @@ class svgdb(base.BaseEngine):
 				action = k
 			std_voices.append({
 				'action': action,
-				'voice': cls.get_svg_card_voice_url(v),
+				'voice': cls._get_voice_url_by_file(v),
 			})
 		return std_voices

@@ -7,7 +7,6 @@ import os
 import sys
 import re
 import asyncio
-import aiohttp
 import datetime
 
 from . import _base as base
@@ -51,7 +50,7 @@ class iyingdi(base.BaseEngine):
 
 	@classmethod
 	async def _fetch_data(cls) -> List[Dict]:
-		cls._logger.info(f"fetch: {cls.URL}")
+		cls._logger.info(f"fetch data")
 		headers = cls.DEFAULT_HEADERS
 		data = {
 			'statistic': 'total',
@@ -61,14 +60,12 @@ class iyingdi(base.BaseEngine):
 			'collect':   '0',
 			'envolve':   '0',
 		}
-		async with aiohttp.ClientSession() as session:
-			async with session.post(cls.URL, headers=headers, data=data) as response:
-				ret = await response.json(content_type=None)
+		ret = await cls._post_url_json(cls.URL, headers=headers, data=data)
 		if ret.get('success', False):
-			cls._logger.info(f"fetch: {cls.URL} success")
+			cls._logger.info(f"fetch data succeed")
 			return ret.get('data', {}).get('cards', [])
 		else:
-			cls._logger.error(f"fetch: {cls.URL} failed")
+			cls._logger.error(f"fetch data failed")
 			return []
 
 	@classmethod
@@ -80,6 +77,16 @@ class iyingdi(base.BaseEngine):
 				# card.get('jname', ''),
 				# card.get('ename', ''),
 			],
+			'faction': card.get('faction'),
+			'types': list(filter(
+				lambda x: x != '',
+				(
+					card.get('mainType'),
+					card.get('subType'),
+				)
+			)),
+			'series': card.get('seriesName'),
+			'rarity': card.get('rarity'),
 			'descs': [
 				card.get('cdesc', ''),
 				# card.get('jdesc', ''),
@@ -95,17 +102,19 @@ class iyingdi(base.BaseEngine):
 				card.get('attack', 0),
 				card.get('hp', 0),
 			),
-			'faction': card.get('faction'),
-			'types': list(filter(
-				lambda x: x != '',
-				(
-					card.get('mainType'),
-					card.get('subType'),
-				)
-			)),
-			'series': card.get('seriesName'),
-			'rarity': card.get('rarity'),
 			'image': card.get('img'),
+			'evo_descs': [
+				'',
+			],
+			'evo_rules': [
+				'',
+			],
+			'evo_attributes': (
+				0,
+				0,
+				0,
+			),
+			'evo_image': '',
 		}
 
 	@classmethod

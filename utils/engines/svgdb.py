@@ -11,7 +11,7 @@ from hoshino import log, config
 class svgdb_en(_svgdb.svgdb):
 
 	URL = 'https://svgdb.me/api/en'
-	SOURCE = 'svgdb_en'
+	SOURCE = 'svgdb EN'
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
@@ -72,17 +72,17 @@ class svgdb_en(_svgdb.svgdb):
 	}
 
 	@classmethod
-	def get_std_card_image_url(cls, card: base.TypeStdCard) -> str:
-		return f"https://svgdb.me/assets/cards/en/C_{card.get('id')}.png"
+	def _get_image_url_by_id(cls, id: str) -> str:
+		return f"https://svgdb.me/assets/cards/en/C_{id}.png"
 
 	@classmethod
-	def get_svg_card_voice_url(cls, voice: str) -> str:
+	def _get_voice_url_by_file(cls, voice: str) -> str:
 		return f"https://svgdb.me/assets/audio/en/{voice}"
 
 class svgdb_jp(_svgdb.svgdb):
 
 	URL = 'https://svgdb.me/api/jp'
-	SOURCE = 'svgdb_jp'
+	SOURCE = 'svgdb JP'
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
@@ -250,9 +250,9 @@ class svgdb_jp(_svgdb.svgdb):
 	}
 
 	@classmethod
-	def get_std_card_image_url(cls, card: base.TypeStdCard) -> str:
-		return f"https://svgdb.me/assets/cards/jp/C_{card.get('id')}.png"
+	def _get_image_url_by_id(cls, id: str) -> str:
+		return f"https://svgdb.me/assets/cards/jp/C_{id}.png"
 
 	@classmethod
-	def get_svg_card_voice_url(cls, voice: str) -> str:
+	def _get_voice_url_by_file(cls, voice: str) -> str:
 		return f"https://svgdb.me/assets/audio/jp/{voice}"

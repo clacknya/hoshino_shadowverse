@@ -22,16 +22,20 @@ from .. import resource
 from hoshino import log, config
 
 class TypeStdCard(TypedDict):
-	id:         str
-	names:      List[str]
-	descs:      List[str]
-	rules:      List[str]
-	attributes: Tuple[int, int, int]
-	faction:    str
-	types:      List[str]
-	series:     str
-	rarity:     str
-	image:      str
+	id:             str
+	names:          List[str]
+	faction:        str
+	types:          List[str]
+	series:         str
+	rarity:         str
+	descs:          List[str]
+	rules:          List[str]
+	attributes:     Tuple[int, int, int]
+	image:          str
+	evo_descs:      List[str]
+	evo_rules:      List[str]
+	evo_attributes: Tuple[int, int, int]
+	evo_image:      str
 
 class TypeStdCardVoice(TypedDict):
 	action: str
@@ -60,12 +64,12 @@ class BaseEngine():
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
 	@classmethod
-	async def save_json(cls, path: str, data: Union[List, Dict]) -> NoReturn:
+	async def _save_json(cls, path: str, data: Union[List, Dict]) -> NoReturn:
 		async with aiofiles.open(path, 'w') as f:
 			await f.write(json.dumps(data))
 
 	@classmethod
-	async def load_json(cls, path: str) -> Union[List, Dict]:
+	async def _load_json(cls, path: str) -> Union[List, Dict]:
 		async with aiofiles.open(path, 'r') as f:
 			return json.loads(await f.read())
 
@@ -103,13 +107,13 @@ class BaseEngine():
 
 	@classmethod
 	def get_rarity_code(cls, rarity: str) -> int:
-		rarity = rarity.lower()
+		rarity = rarity.lower().rstrip('卡')
 		if rarity in [
-			'bronze', 'ブロンズレア', 'ブロンズ', '青铜', '铜',
+			'bronze', 'ブロンズレア', 'ブロンズ', '青铜', '青銅', '铜', '銅',
 		]:
 			return 0
 		if rarity in [
-			'silver', 'シルバーレア', 'シルバー', '白银', '银',
+			'silver', 'シルバーレア', 'シルバー', '白银', '白銀', '银', '銀',
 		]:
 			return 1
 		if rarity in [
@@ -117,7 +121,7 @@ class BaseEngine():
 		]:
 			return 2
 		if rarity in [
-			'legendary', 'レジェンド', '传说', '虹',
+			'legendary', 'レジェンド', '传说', '傳說', '虹',
 		]:
 			return 3
 		# cls._logger.error(f"unknow rarity: {rarity}")
@@ -131,23 +135,23 @@ class BaseEngine():
 		]:
 			return 0
 		if faction in [
-			'forestcraft', 'エルフ', '精灵', '妖精', '妖',
+			'forestcraft', 'エルフ', '精灵', '精靈', '妖精', '妖',
 		]:
 			return 1
 		if faction in [
-			'swordcraft', 'ロイヤル', '皇家护卫', '皇室护卫', '皇家', '皇室', '皇',
+			'swordcraft', 'ロイヤル', '皇家护卫', '皇家護衛', '皇室护卫', '皇家', '皇室', '皇',
 		]:
 			return 2
 		if faction in [
-			'runecraft', 'ウィッチ', '法师', '法', '巫师',
+			'runecraft', 'ウィッチ', '法师', '法', '巫师', '巫師',
 		]:
 			return 3
 		if faction in [
-			'dragoncraft', 'ドラゴン', '龙族', '龙',
+			'dragoncraft', 'ドラゴン', '龙族', '龍族', '龙', '龍',
 		]:
 			return 4
 		if faction in [
-			'shadowcraft', 'ネクロマンサー', '死灵法师', '死灵术士', '死灵', '死', '唤灵师',
+			'shadowcraft', 'ネクロマンサー', '死灵法师', '死靈法師', '死灵术士', '死灵', '死', '唤灵师',
 		]:
 			return 5
 		if faction in [
@@ -159,7 +163,7 @@ class BaseEngine():
 		]:
 			return 7
 		if faction in [
-			'portalcraft', 'ネメシス', '复仇者', '超越者', '鱼',
+			'portalcraft', 'ネメシス', '复仇者', '復仇者', '超越者', '鱼',
 		]:
 			return 8
 		# cls._logger.error(f"unknow faction: {faction}")
@@ -167,7 +171,6 @@ class BaseEngine():
 
 	@classmethod
 	def get_type_code(cls, type: str) -> int:
-		type = type.lower()
 		if type in [
 			'followers', 'follower', 'フォロワー', '从者', '随从',
 		]:
@@ -316,50 +319,165 @@ class BaseEngine():
 
 	# net ------------------------------
 
+	DEFAULT_HEADERS = {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+	}
+
 	@classmethod
-	async def get_url(cls, url: str, **kwargs) -> bytes:
-		cls._logger.info(f"get url: {url}")
-		kwargs.setdefault('headers', {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-		})
+	async def _get_url_data(cls, url: str, **kwargs) -> bytes:
+		cls._logger.info(f"GET data: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
 		async with aiohttp.ClientSession() as session:
 			try:
 				async with session.get(url, **kwargs) as response:
-					data = await response.read()
+					ret = await response.read()
 			except Exception as e:
 				cls._logger.error(f"{e}")
-				cls._logger.error(f"get url: {url} failed")
+				cls._logger.error(f"GET data: {url} failed")
 				raise
-		cls._logger.info(f"get url: {url} success")
-		return data
+		cls._logger.info(f"GET data: {url} succeed")
+		return ret
 
 	@classmethod
-	async def get_urls(cls, urls: List[str], **kwargs) -> List[bytes]:
-		kwargs.setdefault('headers', {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-		})
+	async def _get_url_text(cls, url: str, **kwargs) -> str:
+		cls._logger.info(f"GET text: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.get(url, **kwargs) as response:
+					ret = await response.text()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"GET text: {url} failed")
+				raise
+		cls._logger.info(f"GET text: {url} succeed")
+		return ret
+
+	@classmethod
+	async def _get_url_json(cls, url: str, **kwargs) -> Union[List, Dict]:
+		cls._logger.info(f"GET json: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.get(url, **kwargs) as response:
+					ret = await response.json(content_type=None)
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"GET json: {url} failed")
+				raise
+		cls._logger.info(f"GET json: {url} succeed")
+		return ret
+
+	@classmethod
+	async def _post_url_data(cls, url: str, **kwargs) -> bytes:
+		cls._logger.info(f"POST data: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.post(url, **kwargs) as response:
+					ret = await response.read()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"POST data: {url} failed")
+				raise
+		cls._logger.info(f"POST data: {url} succeed")
+		return ret
+
+	@classmethod
+	async def _post_url_text(cls, url: str, **kwargs) -> str:
+		cls._logger.info(f"POST text: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.post(url, **kwargs) as response:
+					ret = await response.text()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"POST text: {url} failed")
+				raise
+		cls._logger.info(f"POST text: {url} succeed")
+		return ret
+
+	@classmethod
+	async def _post_url_json(cls, url: str, **kwargs) -> Union[List, Dict]:
+		cls._logger.info(f"POST json: {url}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async with aiohttp.ClientSession() as session:
+			try:
+				async with session.post(url, **kwargs) as response:
+					ret = await response.json(content_type=None)
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"POST json: {url} failed")
+				raise
+		cls._logger.info(f"POST json: {url} succeed")
+		return ret
+
+	@classmethod
+	async def _get_urls_data(cls, urls: List[str], **kwargs) -> List[Union[bytes, type(None)]]:
+		# cls._logger.info(f"get urls: [{len(urls)}]")
+		cls._logger.info(f"GET data: {urls}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
 		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
 			try:
 				async with session.get(url, **kwargs) as response:
 					return await response.read()
 			except Exception as e:
 				cls._logger.error(f"{e}")
-				cls._logger.error(f"get url: {url} failed")
-				return b''
-		# cls._logger.info(f"get urls: [{len(urls)}]")
-		cls._logger.info(f"get urls: {urls}")
+				cls._logger.error(f"GET data: {url} failed")
+				return None
 		async with aiohttp.ClientSession() as session:
-			data = await asyncio.gather(
+			ret = await asyncio.gather(
 				*[fetch(session, url) for url in urls]
 			)
-		cls._logger.info(f"get urls: [{len(urls)}] success")
-		return data
+		cls._logger.info(f"GET data: [{len(urls)-ret.count(None)}] succeed")
+		return ret
+
+	@classmethod
+	async def _get_urls_text(cls, urls: List[str], **kwargs) -> List[Union[str, type(None)]]:
+		# cls._logger.info(f"get urls: [{len(urls)}]")
+		cls._logger.info(f"GET text: {urls}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
+			try:
+				async with session.get(url, **kwargs) as response:
+					return await response.text()
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"GET text: {url} failed")
+				return None
+		async with aiohttp.ClientSession() as session:
+			ret = await asyncio.gather(
+				*[fetch(session, url) for url in urls]
+			)
+		cls._logger.info(f"GET text: [{len(urls)-ret.count(None)}] succeed")
+		return ret
+
+	@classmethod
+	async def _get_urls_json(cls, urls: List[str], **kwargs) -> List[Union[List, Dict, type(None)]]:
+		# cls._logger.info(f"get urls: [{len(urls)}]")
+		cls._logger.info(f"GET json: {urls}")
+		kwargs.setdefault('headers', __class__.DEFAULT_HEADERS)
+		async def fetch(session: aiohttp.client.ClientSession, url: str) -> bytes:
+			try:
+				async with session.get(url, **kwargs) as response:
+					return await response.json(content_type=None)
+			except Exception as e:
+				cls._logger.error(f"{e}")
+				cls._logger.error(f"GET json: {url} failed")
+				return None
+		async with aiohttp.ClientSession() as session:
+			ret = await asyncio.gather(
+				*[fetch(session, url) for url in urls]
+			)
+		cls._logger.info(f"GET json: [{len(urls)-ret.count(None)}] succeed")
+		return ret
 
 	# image ----------------------------
 
 	@classmethod
 	async def get_std_card_image(cls, card: TypeStdCard) -> PIL.Image.Image:
-		bytes = io.BytesIO(await cls.get_url(card['image']))
+		bytes = io.BytesIO(await cls._get_url_data(card['image']))
 		image = PIL.Image.open(bytes).convert("RGBA")
 		return image
 
@@ -368,7 +486,7 @@ class BaseEngine():
 		images = [
 			PIL.Image.open(io.BytesIO(bytes)).convert("RGBA") if bytes else \
 				PIL.Image.open(io.BytesIO(resource.images['error.png'])).convert("RGBA") \
-				for bytes in await cls.get_urls([card['image'] for card in cards])
+				for bytes in await cls._get_urls_data([card['image'] for card in cards])
 		]
 		return images
 
@@ -412,6 +530,7 @@ class BaseEngine():
 				f'。(?!{SEPEND})', f'！(?!{SEPEND})',
 				'(?<!^)(?=（)', f'）(?!{SEPEND})',
 				'(?<!^)(?=「)', f'」(?!{SEPEND})',
+				# '(?<=<br>)',
 			]
 			result = []
 			size = utf8_size(text)
@@ -435,12 +554,24 @@ class BaseEngine():
 		result.append(card['series'])
 		result.append(' ')
 		result.append('/'.join([card['faction']]+card['types']))
+		result.append('-' * line_size_max)
+		result.append(f"{card['attributes']}")
 		result.append(' ')
 		for text in card['descs']:
 			for line in text.split('\n'):
 				result.extend(cut(line, line_size_max))
 		result.append(' ')
 		for text in card['rules']:
+			for line in text.split('\n'):
+				result.extend(cut(line, line_size_max))
+		result.append('-' * line_size_max)
+		result.append(f"{card['evo_attributes']}")
+		result.append(' ')
+		for text in card['evo_descs']:
+			for line in text.split('\n'):
+				result.extend(cut(line, line_size_max))
+		result.append(' ')
+		for text in card['evo_rules']:
 			for line in text.split('\n'):
 				result.extend(cut(line, line_size_max))
 		return result
@@ -536,4 +667,4 @@ class BaseEngine():
 
 	@classmethod
 	async def get_std_card_voice(cls, voice: TypeStdCardVoice) -> bytes:
-		return await cls.get_url(voice['voice'])
+		return await cls._get_url_data(voice['voice'])

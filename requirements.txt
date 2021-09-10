@@ -2,3 +2,5 @@ pillow
 aiohttp
 aiofiles
 aiorwlock
+lxml
+cssselect
