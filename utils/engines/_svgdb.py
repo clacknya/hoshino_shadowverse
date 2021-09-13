@@ -89,7 +89,7 @@ class svgdb(base.BaseEngine):
 				card.get('evoAtk_', 0),
 				card.get('evoDef_', 0),
 			),
-			'evo_image': '',
+			'evo_image': cls._get_evo_image_url_by_id(card.get('id_')),
 		}
 
 	@classmethod
@@ -100,6 +100,10 @@ class svgdb(base.BaseEngine):
 
 	@abc.abstractclassmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
+		raise NotImplementedError
+
+	@abc.abstractclassmethod
+	def _get_evo_image_url_by_id(cls, id: str) -> str:
 		raise NotImplementedError
 
 	DEFAULT_IMAGE_CROP_CONFIG = {

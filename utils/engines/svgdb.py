@@ -76,6 +76,10 @@ class svgdb_en(_svgdb.svgdb):
 		return f"https://svgdb.me/assets/cards/en/C_{id}.png"
 
 	@classmethod
+	def _get_evo_image_url_by_id(cls, id: str) -> str:
+		return f"https://svgdb.me/assets/cards/en/E_{id}.png"
+
+	@classmethod
 	def _get_voice_url_by_file(cls, voice: str) -> str:
 		return f"https://svgdb.me/assets/audio/en/{voice}"
 
@@ -252,6 +256,10 @@ class svgdb_jp(_svgdb.svgdb):
 	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
 		return f"https://svgdb.me/assets/cards/jp/C_{id}.png"
+
+	@classmethod
+	def _get_evo_image_url_by_id(cls, id: str) -> str:
+		return f"https://svgdb.me/assets/cards/jp/E_{id}.png"
 
 	@classmethod
 	def _get_voice_url_by_file(cls, voice: str) -> str:
