@@ -123,7 +123,7 @@ class svgdb(base.BaseEngine):
 		headers = cls.DEFAULT_HEADERS
 		ret = await cls._get_url_json(url, headers=headers)
 		cls._logger.info(f"fetch data succeed")
-		return data
+		return ret
 
 	@classmethod
 	async def get_std_card_voices(cls, card: base.TypeStdCard) -> base.TypeStdCardVoices:
