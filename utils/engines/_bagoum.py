@@ -60,6 +60,10 @@ class bagoum(base.BaseEngine):
 		return ret
 
 	@classmethod
+	def _parse_race(cls, race: str) -> List[str]:
+		return [race]
+
+	@classmethod
 	def to_std_card(cls, card: TypeBagoumCard) -> base.TypeStdCard:
 		return {
 			'id': card.get('id', ''),
@@ -71,7 +75,7 @@ class bagoum(base.BaseEngine):
 				lambda x: x not in [''],
 				(
 					card.get('type'),
-					card.get('race'),
+					*cls._parse_race(card.get('race', '')),
 				)
 			)),
 			'series': card.get('expansion'),

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import List, Dict, TypedDict
+
 import asyncio
 import datetime
 
@@ -70,6 +72,10 @@ class svgdb_en(_svgdb.svgdb):
 		'censored': 'Censored',
 		'animated': 'Animated'
 	}
+
+	@classmethod
+	def _parse_trait(cls, trait: str) -> List[str]:
+		return trait.split(' / ')
 
 	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
@@ -252,6 +258,10 @@ class svgdb_jp(_svgdb.svgdb):
 		'Portalcraft': '\u30cd\u30e1\u30b7\u30b9',
 		'animated': '\u30d7\u30ec\u30df\u30a2\u30e0'
 	}
+
+	@classmethod
+	def _parse_trait(cls, trait: str) -> List[str]:
+		return trait.split('\u30fb')
 
 	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:

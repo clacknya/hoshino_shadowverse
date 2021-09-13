@@ -1,13 +1,69 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import List, Dict
+from typing import List, Dict, TypedDict
 
 import asyncio
 import datetime
 
 from . import _base as base
 from hoshino import log, config
+
+class TypeIyingdiCard(TypedDict):
+	articleId:     str
+	artist:        str
+	attack:        int
+	cdesc:         str
+	cname:         str
+	created:       int
+	crule:         str
+	cv:            str
+	cv_atk:        str
+	cv_death:      str
+	cv_envolve:    str
+	cv_play:       str
+	deckable:      int
+	decompose:     int
+	edesc:         str
+	ename:         str
+	envolve:       int
+	envolveCard:   int
+	erule:         str
+	faction:       str
+	faq:           str
+	forge:         int
+	gameid:        str
+	goldDecompose: int
+	hp:            int
+	id:            int
+	img:           str
+	international: int
+	jdesc:         str
+	jname:         str
+	jrule:         str
+	limited:       int
+	mainType:      str
+	mana:          int
+	rarity:        str
+	relatedCard:   str
+	rotate:        int
+	score:         float
+	series:        int
+	seriesAbbr:    str
+	seriesName:    str
+	seriesSize:    int
+	sindex:        int
+	size:          int
+	subType:       str
+	tdesc:         str
+	thumbnail:     str
+	tname:         str
+	topicId:       str
+	trule:         str
+	unlimited:     int
+	visible:       int
+
+TypeIyingdiCards = List[TypeIyingdiCard]
 
 class iyingdi(base.BaseEngine):
 
@@ -33,7 +89,7 @@ class iyingdi(base.BaseEngine):
 	_std_data_update_cd = datetime.timedelta(hours=24)
 
 	@classmethod
-	async def _fetch_data(cls) -> List[Dict]:
+	async def _fetch_data(cls) -> TypeIyingdiCards:
 		cls._logger.info(f"fetch data")
 		headers = cls.DEFAULT_HEADERS
 		data = {
@@ -53,7 +109,7 @@ class iyingdi(base.BaseEngine):
 			return []
 
 	@classmethod
-	def to_std_card(cls, card: Dict) -> base.TypeStdCard:
+	def to_std_card(cls, card: TypeIyingdiCard) -> base.TypeStdCard:
 		return {
 			'id': card.get('gameid', ''),
 			'names': [
@@ -66,7 +122,7 @@ class iyingdi(base.BaseEngine):
 				lambda x: x != '',
 				(
 					card.get('mainType'),
-					card.get('subType'),
+					*card.get('subType').split('+'),
 				)
 			)),
 			'series': card.get('seriesName'),
@@ -102,7 +158,7 @@ class iyingdi(base.BaseEngine):
 		}
 
 	@classmethod
-	def to_std_cards(cls, cards: List[Dict]) -> List[base.TypeStdCard]:
+	def to_std_cards(cls, cards: TypeIyingdiCards) -> List[base.TypeStdCard]:
 		return [cls.to_std_card(card) for card in cards]
 
 	# image ----------------------------

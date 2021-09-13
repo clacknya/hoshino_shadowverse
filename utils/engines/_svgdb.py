@@ -49,6 +49,10 @@ class svgdb(base.BaseEngine):
 		return ret
 
 	@classmethod
+	def _parse_trait(cls, trait: str) -> List[str]:
+		return [trait]
+
+	@classmethod
 	def to_std_card(cls, card: TypeSVGCard) -> base.TypeStdCard:
 		return {
 			'id': str(card.get('id_', '')),
@@ -60,7 +64,7 @@ class svgdb(base.BaseEngine):
 				lambda x: x not in ['', '-'],
 				(
 					card.get('type_'),
-					card.get('trait_'),
+					*cls._parse_trait(card.get('trait_', '')),
 				)
 			)),
 			'series': card.get('expansion_'),

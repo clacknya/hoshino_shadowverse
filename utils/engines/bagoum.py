@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import List
+
 import asyncio
 import datetime
 
@@ -25,6 +27,10 @@ class bagoum_en(_bagoum.bagoum):
 	_std_data_lock = asyncio.Lock()
 	_std_data_expire_date = datetime.datetime.min
 	_std_data_update_cd = datetime.timedelta(hours=24)
+
+	@classmethod
+	def _parse_race(cls, race: str) -> List[str]:
+		return race.split(' / ')
 
 	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
@@ -53,6 +59,10 @@ class bagoum_jp(_bagoum.bagoum):
 	_std_data_update_cd = datetime.timedelta(hours=24)
 
 	@classmethod
+	def _parse_race(cls, race: str) -> List[str]:
+		return race.split('\u30fb')
+
+	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
 		return f"https://sv.bagoum.com/cardF/ja/c/{id}"
 
@@ -77,6 +87,10 @@ class bagoum_tw(_bagoum.bagoum):
 	_std_data_lock = asyncio.Lock()
 	_std_data_expire_date = datetime.datetime.min
 	_std_data_update_cd = datetime.timedelta(hours=24)
+
+	@classmethod
+	def _parse_race(cls, race: str) -> List[str]:
+		return race.split('\u2027')
 
 	@classmethod
 	def _get_image_url_by_id(cls, id: str) -> str:
