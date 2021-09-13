@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import List, Dict, NoReturn
+from typing import List, Dict
 
-import os
-import sys
-import re
 import asyncio
 import datetime
 
@@ -34,19 +31,6 @@ class iyingdi(base.BaseEngine):
 	_std_data_lock = asyncio.Lock()
 	_std_data_expire_date = datetime.datetime.min
 	_std_data_update_cd = datetime.timedelta(hours=24)
-
-	# only for debug, lock is required for use
-	@classmethod
-	async def _save_data(cls, path: str) -> NoReturn:
-		cls._logger.info(f"save data to: {path}")
-		await cls.save_json(path, cls._data)
-
-	# only for debug, lock is required for use
-	@classmethod
-	async def _load_data(cls, path: str) -> List[Dict]:
-		cls._logger.info(f"load data from: {path}")
-		cls._update_data(await cls.load_json(path))
-		return cls._data
 
 	@classmethod
 	async def _fetch_data(cls) -> List[Dict]:

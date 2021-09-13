@@ -5,13 +5,11 @@ from typing import Any, Union, Tuple, List, Dict, TypedDict, NoReturn
 
 import abc
 import re
-import json
 import copy
 import random
 import datetime
 import asyncio
 import aiohttp
-import aiofiles
 import io
 import PIL
 import PIL.ImageFont
@@ -62,16 +60,6 @@ class BaseEngine():
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
-
-	@classmethod
-	async def _save_json(cls, path: str, data: Union[List, Dict]) -> NoReturn:
-		async with aiofiles.open(path, 'w') as f:
-			await f.write(json.dumps(data))
-
-	@classmethod
-	async def _load_json(cls, path: str) -> Union[List, Dict]:
-		async with aiofiles.open(path, 'r') as f:
-			return json.loads(await f.read())
 
 	@classmethod
 	def _update_data(cls, data: Any) -> NoReturn:
