@@ -29,7 +29,7 @@ sv = Service('影之诗猜语音', bundle='sv娱乐', help_='''
 # [sv猜语音解锁] 当猜语音游戏超时限未自动结束死锁时解锁
 
 def set_default_config(config: Dict={}) -> Dict:
-	config.setdefault('engine', 'bagoum_tw')
+	config.setdefault('engine', 'svgdb_jp')
 	config.setdefault('time_limit', 40)
 	return config
 
