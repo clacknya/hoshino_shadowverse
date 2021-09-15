@@ -252,6 +252,7 @@ class BaseEngine():
 		'　的'
 		' '
 		'áéö'
+		'★'
 	)
 
 	@classmethod

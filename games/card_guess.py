@@ -82,7 +82,7 @@ async def sv_card_guess(bot, ev: CQEvent):
 	eg = engine.get_engine(config['engine'])
 
 	if eg == None:
-		sv.logger.critical(f"未找到引擎 {config['engine']}")
+		sv.logger.error(f"未找到引擎 {config['engine']}")
 		gmmgr.finish(ev.group_id)
 		await bot.finish(ev, f"未找到引擎 {config['engine']}")
 
@@ -104,7 +104,7 @@ async def sv_card_guess(bot, ev: CQEvent):
 		card_image = await eg.get_std_card_image(card)
 		card_image_crop = eg.get_std_card_image_crop(card_image)
 	except NotImplementedError as e:
-		sv.logger.critical('NotImplementedError')
+		sv.logger.error('NotImplementedError')
 		gmmgr.finish(ev.group_id)
 		await bot.finish(ev, '该引擎此功能未实现')
 	except Exception as e:
