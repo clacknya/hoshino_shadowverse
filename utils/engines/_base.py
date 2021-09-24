@@ -266,37 +266,46 @@ class BaseEngine():
 		return re.compile('|'.join(patterns), flags=re.IGNORECASE)
 
 	@classmethod
-	def filter_std_cards(cls, cards: List[TypeStdCard], filter: str) -> List[TypeStdCard]:
-		cls._logger.debug(f"filter \"{filter}\" in {len(cards)} cards")
-		if filter == '':
+	def filter_std_cards(cls, cards: List[TypeStdCard], f: str) -> List[TypeStdCard]:
+		cls._logger.debug(f"filter \"{f}\" in {len(cards)} cards")
+		if f == '':
 			return copy.deepcopy(cards)
 		result = []
-		if re.match(r'^\d+$', filter):
-			for card in cards:
-				if ''.join(map(str, card.get('attributes', ()))) == filter:
-					result.append(card)
+		cost_match = re.match(r'^(\d+)(?:00|费)$', f)
+		if cost_match:
+			cost = int(cost_match.group(1))
+			result = list(filter(
+				lambda card: card.get('attributes', (-1))[0] == cost,
+				cards
+			))
+		elif re.match(r'^\d+$', f):
+			result = list(filter(
+				lambda card: ''.join(map(str, card.get('attributes', ()))) == f,
+				cards
+			))
 		else:
 			for card in cards:
-				if (any(map(lambda x: filter in x, card.get('names', []))) or
-					any(map(lambda x: filter in x, card.get('rules', []))) or
-					any(map(lambda x: filter in x, card.get('types', []))) or
+				if (any(map(lambda x: f in x, card.get('names', []))) or
+					any(map(lambda x: f in x, card.get('rules', []))) or
+					any(map(lambda x: f in x, card.get('types', []))) or
 					cls.check_code_equal(
 						cls.get_type_code(card.get('types')[0]),
-						cls.get_type_code(filter)
+						cls.get_type_code(f)
 					) or
-					card.get('faction') == filter or
+					card.get('faction') == f or
 					cls.check_code_equal(
 						cls.get_faction_code(card.get('faction')),
-						cls.get_faction_code(filter)
+						cls.get_faction_code(f)
 					) or
-					card.get('series') == filter or
-					card.get('rarity') == filter or
+					card.get('series') == f or
+					card.get('rarity') == f or
 					cls.check_code_equal(
 						cls.get_rarity_code(card.get('rarity')),
-						cls.get_rarity_code(filter)
+						cls.get_rarity_code(f)
 					)):
 					result.append(card)
 		cls._logger.debug(f"find {len(result)} cards")
+		# return copy.deepcopy(result)
 		return result
 
 	@classmethod
