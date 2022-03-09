@@ -18,16 +18,6 @@ class bagoum_en(_bagoum.bagoum):
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
-
 	@classmethod
 	def _parse_race(cls, race: str) -> List[str]:
 		return race.split(' / ')
@@ -48,16 +38,6 @@ class bagoum_jp(_bagoum.bagoum):
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
-
 	@classmethod
 	def _parse_race(cls, race: str) -> List[str]:
 		return race.split('\u30fb')
@@ -77,16 +57,6 @@ class bagoum_tw(_bagoum.bagoum):
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
-
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
 
 	@classmethod
 	def _parse_race(cls, race: str) -> List[str]:

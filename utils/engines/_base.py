@@ -10,6 +10,7 @@ import random
 import datetime
 import asyncio
 import aiohttp
+import aiocache
 import io
 import PIL
 import PIL.ImageFont
@@ -61,35 +62,14 @@ class BaseEngine():
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
-	@classmethod
-	def _update_data(cls, data: Any) -> NoReturn:
-		cls._logger.info(f"update data")
-		cls._data = copy.deepcopy(data)
-		cls._data_expire_date = datetime.datetime.now() + cls._data_update_cd
-
 	@abc.abstractclassmethod
 	async def _fetch_data(cls) -> Any:
 		raise NotImplementedError
 
 	@classmethod
-	async def _get_data(cls) -> Any:
-		async with cls._data_lock:
-			if datetime.datetime.now() > cls._data_expire_date:
-				cls._update_data(await cls._fetch_data())
-			return cls._data
-
-	@classmethod
-	def _update_std_data(cls, data: List[TypeStdCard]) -> NoReturn:
-		cls._logger.info(f"update std data")
-		cls._std_data = copy.deepcopy(data)
-		cls._std_data_expire_date = datetime.datetime.now() + cls._std_data_update_cd
-
-	@classmethod
+	@aiocache.cached(ttl=86400)
 	async def _get_std_data(cls) -> List[TypeStdCard]:
-		async with cls._std_data_lock:
-			if datetime.datetime.now() > cls._std_data_expire_date:
-				cls._update_std_data(cls.to_std_cards(await cls._get_data()))
-			return cls._std_data
+		return cls.to_std_cards(await cls._fetch_data())
 
 	# code -----------------------------
 

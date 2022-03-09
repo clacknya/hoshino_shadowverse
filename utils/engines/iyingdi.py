@@ -78,16 +78,6 @@ class iyingdi(base.BaseEngine):
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
-
 	@classmethod
 	async def _fetch_data(cls) -> TypeIyingdiCards:
 		cls._logger.info(f"fetch data")

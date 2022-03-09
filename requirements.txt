@@ -1,5 +1,6 @@
 pillow
 aiohttp
+aiocache
 aiofiles
 lxml
 cssselect

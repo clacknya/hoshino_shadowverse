@@ -18,16 +18,6 @@ class svgdb_en(_svgdb.svgdb):
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
 
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
-
 	_translation = {
 		'cards': 'Cards',
 		'leaders': 'Leaders',
@@ -96,16 +86,6 @@ class svgdb_jp(_svgdb.svgdb):
 
 	_logger_name = f"{'.'.join(__name__.split('.')[2:])}@{__qualname__}"
 	_logger = log.new_logger(_logger_name, config.DEBUG)
-
-	_data = None
-	_data_lock = asyncio.Lock()
-	_data_expire_date = datetime.datetime.min
-	_data_update_cd = datetime.timedelta(hours=24)
-
-	_std_data = None
-	_std_data_lock = asyncio.Lock()
-	_std_data_expire_date = datetime.datetime.min
-	_std_data_update_cd = datetime.timedelta(hours=24)
 
 	_translation = {
 		'cards': '\u30ab\u30fc\u30c9',
